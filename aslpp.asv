@@ -1,0 +1,278 @@
+function aslpp(label_fn, m0_fn, varargin)
+
+%% ADD PATH FOR ALL FUNCTIONS
+functions_path = [fileparts(mfilename('fullpath')), filesep, 'functions'];
+addpath(functions_path);
+
+
+%% INPUT PARSER AND VALIDATION
+p = inputParser;
+
+% FIELD STRENGTH VALIDATION
+def_FieldStrength = 7; % Choose field strength so correct T1/T2/T2* can be chosen: 1.5, 3, 7.
+val_FieldStrength = [1.5, 3, 7];
+che_FieldStrength = @(x) ismember(x, val_FieldStrength);
+
+% SUBTRACTION VALIDATION
+def_Subtraction = 'Pairwise1'; % Subtraction method: 'Pairwise1', 'Pairwise2', 'Surround', 'Running', 'Sinc'.
+val_Subtraction = {'Pairwise1', 'Pairwise2', 'Surround', 'Running', 'Sinc'};
+che_Subtraction = @(x) ismember(x, val_Subtraction);
+
+% MOTION CORRECTION VALIDATION
+def_MC = 1; % Turn motion correction on/off: 1 = on, 0 = off.
+val_MC = [0 1];
+che_MC = @(x) ismember(x, val_MC);
+
+% MOTION CORRECTION REFERENCE VOLUME VALIDATION
+def_MCRefVol = 0; % Motion correction reference volume: Integer between 0 and number of repeats.
+che_MCRefVol = @(x) isnumeric(x) | strcmp(x,'middle');
+
+% MOTION COORECTION DEGREES OF FREEDOM VALIDATION
+def_MCDoF = 12; % Degrees of freedom of motion correction: 3, 6, 7, 9, 12.
+val_MCDoF = [3, 6, 7, 9, 12];
+che_MCDoF = @(x) ismember(x, val_MCDoF);
+
+% MOTION CORRECTION COST FUNCTION VALIDATION
+def_MCCost = 'norrmi'; % Cost function for motion correction: 'corratio', 'mutualinfo', 'normmi', 'normcorr', 'leastsquares', 'woods'.
+val_MCCost = {'corratio', 'mutualinfo', 'normmi', 'normcorr', 'leastsquares', 'woods'};
+che_MCCost = @(x) ismember(x, val_MCCost);
+
+% MOTION CORRECTION COST SMOOTHING VALIDATION
+def_MCSmooth = 0; % Smoothing of motion correction cost function.
+
+% MOTION CORRECTION BINS VALIDATION
+def_MCBins = '256'; % Number of histogram bins in motion correction.
+che_MCBins = @(x) x>=0;
+
+% MOTION CORRECTION INITIAL TRANSFORM VALIDATION
+def_MCInit = [functions_path, filesep, 'I.mat']; % Filename of initial transform to apply to motion correction.
+
+% MOTION CORRECTION THRESHOLD
+def_MCDiscardThreshold = 2; % Discard repeat with translation greater than threshold (mm). Set to inf to turn off.
+
+% BRAIN EXTRACT LABEL VALIDATION
+def_BETLabel = 1; % Turn on/off brain extraction on labels: 1 = on, 0 = off.
+val_BETLabel = [0 1];
+che_BETLabel = @(x) ismember(x, val_BETLabel);
+
+% BRAIN EXTRACT LABEL FIT VALIDATION
+def_BETLabelf = 0.2; % Fractional intensity threshold of label brain extraction (0 to 1).
+che_BETLabelf = @(x) x>=0 & x<=1;
+
+% BRAIN EXTRACT LABEL VGFIT VALIDATION
+def_BETLabelg = 0.2; % Verticle gradient in fractional intensity threshold (-1 to 1).
+che_BETLabelg = @(x) x>=-1 & x<=1;
+
+% BRAIN EXTRACT M0 VALIDATION
+def_BETM0 = 1; % Turn on/off brain extraction on M0: 1 = on, 0 = off.
+val_BETM0 = [0 1];
+che_BETM0 = @(x) ismember(x, val_M0Label);
+
+% BRAIN EXTRACT M0 FIT VALIDATION
+def_BETM0f = 0.2; % Fractional intensity threshold of label brain extraction (0 to 1).
+che_BETM0f = @(x) x>=0 & x<=1;
+
+% BRAIN EXTRACT LABEL VGFIT VALIDATION
+def_BETM0g = 0.2; % Verticle gradient in fractional intensity threshold (-1 to 1).
+che_BETM0g = @(x) x>=-1 & x<=1;
+
+% OUTLIER DETECTION METHOD VALIDATION
+def_OutlierMethod = 'Tan'; % Choose outlier detection method: 'None', 'Tan', 'Maumet', 'Rich'.
+val_OutlierMethod = {'None', 'Tan', 'Maument', 'Rich'};
+che_OutlierMethod = @(x) ismember(x, val_OutlierMethod);
+
+% TAN OUTLIER DETECTION THRESHOLD VALIDATION
+def_TanThreshold = 2.5; % Tuning parameter for Tan discarding method (2.5 recommended)
+
+% CALIBRATION METHOD VALIDATION
+def_CalibMethod = 'BBB'; % Choose calibration method: 'CSF', 'PVMaps', 'GM', 'BBB'.
+val_CalibMethod = {'BBB', 'CSF', 'PVMaps', 'GM'};
+che_CalibMethod = @(x) ismember(x, val_CalibMethod);
+
+% CALIBRATION PV MAPS VALIDATION
+def_CalibPVMaps = 'None'; % Filename of PV maps: 4D matrix with GM, WM, CSF PV maps stored in 4th dimension that order.
+
+% CALIBARTION ECHO TIME VALIDATION
+def_CalibTE = 0; % Echo time in ms.
+
+% OUTPUT DIRECTION VALIDATION
+labels_path = fileparts(label_fn);
+k = strfind(label_fn, 'label');
+labels_pre = label_fn(1:k-2);
+def_OutputDir = [labels_path, filesep, labels_pre '_aslpp']; % Output directory, will later automatically add '+' if folder already exists.
+
+% VERBOSE VALIDATION
+def_Verbose = 1; % Output progress to command window.
+val_Verbose = [0 1];
+che_Verbose = @(x) ismember(x, val_Verbose);
+
+% ADD INPUTS AND VALIDATE
+addRequired(p, 'label_fn', @ischar);
+addRequired(p, 'm0_fn', @ischar);
+addOptional(p, 'FieldStrength', def_FieldStrength, che_FieldStrength);
+addOptional(p, 'Subtraction', def_Subtraction, che_Subtraction);
+addOptional(p, 'MC', def_MC, che_MC);
+addOptional(p, 'MCRefVol', def_MCRefVol, che_MCRefVol);
+addOptional(p, 'MCDoF', def_MCDoF, che_MCDoF);
+addOptional(p, 'MCCost', def_MCCost, che_MCCost);
+addOptional(p, 'MCSmooth', def_MCSmooth, @isnumeric);
+addOptional(p, 'MCBins', def_MCBins, che_MCBins);
+addOptional(p, 'MCInit', def_MCInit, @ischar);
+addOptional(p, 'MCDiscardThreshold', def_MCDiscardThreshold, @isnumeric);
+addOptional(p, 'BETLabel', def_BETLabel, che_BETLabel);
+addOptional(p, 'BETLabelf', def_BETLabelf, che_BETLabelf);
+addOptional(p, 'BETLabelg', def_BETLabelg, che_BETLabelg);
+addOptional(p, 'BETM0', def_BETM0, che_BETM0);
+addOptional(p, 'BETM0f', def_BETM0f, che_BETM0f);
+addOptional(p, 'BETM0g', def_BETM0g, che_BETM0g);
+addOptional(p, 'OutlierMethod', def_OutlierMethod, che_OutlierMethod);
+addOptional(p, 'TanThreshold', def_TanThreshold, @isnumeric);
+addOptional(p, 'CalibMethod', def_CalibMethod, che_CalibMethod);
+addOptional(p, 'CalibPVMaps', def_CalibPVMaps, @ischar);
+addOptional(p, 'CalibTE', def_CalibTE, @isnumeric);
+addOptional(p, 'OutputDir', def_OutputDir, @ischar);
+addOptional(p, 'Verbose', def_Verbose, che_Verbose);
+
+% PARSE INPUTS
+parse(p,label_fn, m0_fn, varargin{:});
+
+
+%% CHECK THAT ALL FILES EXIST OF THEY ARE BEING USED AND PARAMETERS ARE VALID
+
+% GET LABEL 1 AND LABEL 2 FILE NAMES
+label1_fn = label_fn; label1_fn(k+5)='1';
+label2_fn = label_fn; label2_fn(k+5)='2';
+
+% READ IN LABEL1, LABEL2 AND M0
+label1_nii = load_untouch_nii(label1_fn);
+label2_nii = load_untouch_nii(label2_fn);
+m0_nii = load_untouch_nii(m0_fn);
+
+% CHECK IF LABEL 1 EXISTS
+if exist(label1_fn, 'file')==0
+    disp('Label 1 does not exist. Script stopped.');
+    return;
+end
+
+% CHECK IF LABEL 2 EXISTS
+if exist(label2_fn, 'file')==0
+    disp('Label 2 does not exist. Script stopped.');
+    return;
+end
+
+% CHECK IS M0 EXISTS
+if exist(m0_fn, 'file')==0
+    disp('M0 does not exist. Script stopped.');
+    return;
+end
+
+% CHECK IF MOTION CORRECTION MATRIX EXISTS
+if exist(p.Results.MCInit, 'file')==0 && p.Results.MC == 1
+    disp('Motion correction initial transform matrix does not exits. Script stopped');
+    return;
+end
+
+% CHECK IF PARTIAL VOLUME MAPS FOR CALIBRATION EXISTS IF THAT METHOD IS CHOSEN
+if strcmp(p.Results.CalibMethod, 'PVMaps') && exist(p.Results.CalibPVMaps, 'file')==0
+    disp(['Partial volume maps for calibration does not exist. Script stopped. File chosen: ', p.Results.CalibPVMaps]);
+    return;
+end
+
+% CHECK IF ECHO TIME IS DEFINE IF CSF, PVMAPS OR GM CALIBRATION METHOD IS CHOSEN.
+if ismember(p.Results.CalibMethod, {'PVMaps', 'GM', 'CSF'}) && p.Results.CalibTE==0
+    disp(['Echo time needs defining for ' p.Results.CalibMethod, ' calibration method.']);
+    return;
+end
+
+% CHECK IF LABEL1 AND LABEL2 HAVE THE SAME DIMENSIONS
+if isequal(label1_nii.hdr.dime.dim(2:5), label2_nii.hdr.dime.dim(2:5))==0
+    disp(['Label 1 and Label 2 have different image dimensions. Label 1 = ', num2str(label1_nii.hdr.dime.dim(2:5)), ' and Label 2 = ', num2str(label2_nii.hdr.dime.dim(2:5))]);
+    return;
+end
+
+% CHECK IF LABELS AND M0 HAVE THE SAME IMAGE DIMENSIONS
+m0_hdr = load_untouch_header_only(m0_fn);
+if isequal(m0_nii.hdr.dime.dim(2:4), label1_nii.hdr.dime.dim(2:4))==0
+    disp(['Labels and M0 have different image dimensions. Labels = ', num2str(label1_nii.hdr.dime.dim(2:5)), ' and M0 = ', num2str(m0_nii.hdr.dime.dim(2:5))]);
+    return;
+end
+
+% CHECK IF MOTION CORRECTION REFERENCE VOLUME IS VALID
+if p.Results.MC == 1 && p.Results.MCRefVol < 0 && p.Results.MCRefVol >= label1_nii.hdr.dime.dim(5)
+    disp(['Motion correction reference volume outside allowed range. Script stopped. Chosen reference volume: ' num2str(p.Results.MCRefVol)]);
+    return;
+end
+
+
+%% MOTION CORRECTION
+
+
+
+
+%% SUBTRACTION
+
+diff_nii = aslpp_subtraction(label1_nii, label2_nii, p.Results);
+diff_nii
+
+
+end
+
+%% MOTION CORRECTION FUNCTION
+
+function [label1_nii, label2_nii] = aslpp_motioncorrection(label1_nii, label2_nii, Results)
+% MOTION CORRECT LABEL1 AND LABEL2
+
+
+
+end
+
+
+%% SUBTRACTION FUNCTION
+
+function diff_nii = aslpp_subtraction(label1_nii, label2_nii, Results)
+% SUBTRACT LABEL1 AND LABEL 2 USING SPECIFIED METHOD
+
+switch Results.Subtraction
+    
+    case 'Pairwise1'
+        
+        diff = label1_nii.img-label2_nii.img;
+        
+    case 'Pairwise2'
+        
+        diff = label1_nii.img(:,:,:,2:end)-label2_nii.img(:,:,:,1:end-1);
+        
+    case 'Surround'
+        
+        diff = (label1_nii.img(:,:,:,1:end-1)+label1_nii.img(:,:,:,2:end))/2 - label2_nii.img(:,:,:,1:end-1);
+        
+    case 'Running'
+        
+        l = [2:label1_nii.hdr.dime.dim(5); 2:label1_nii.hdr.dime.dim(5)]; l = [1; l(:)]';
+        c = [1:label1_nii.hdr.dime.dim(5)-1; 1:label1_nii.hdr.dime.dim(5)-1]; c = [c(:); label1_nii.hdr.dime.dim(5)]';
+        diff = label1_nii.img(:,:,:,l) - label2_nii.img(:,:,:,c);
+        
+    case 'Sinc'
+        
+        reps = label1_nii.hdr.dime.dim(5);
+        nvox = label1_nii.hdr.dime.dim(2)*label1_nii.hdr.dime.dim(3)*label1_nii.hdr.dime.dim(4);
+        xi = 1.5:1:(reps-0.5);
+        label1_rs = reshape(label1_nii.img, nvox, reps);
+        label1_sinc = zeros(nvox, reps)
+        
+        for n = 1:nvox
+            if isequal(label1_rs(n,:), zeros(1,reps))==0
+                
+            end
+        end  
+        
+end
+
+
+diff_nii = make_nii(diff, label1_nii.hdr.dime.pixdim(2:4), [], 16);
+
+
+end
+
+
+
