@@ -109,7 +109,7 @@ val_BETM0 = [0 1];
 che_BETM0 = @(x) ismember(x, val_BETM0);
 
 % BRAIN EXTRACT M0 FIT VALIDATION
-def_BETM0f = 0; % Fractional intensity threshold of label brain extraction (0 to 1).
+def_BETM0f = 0.2; % Fractional intensity threshold of label brain extraction (0 to 1).
 che_BETM0f = @(x) x>=0 & x<=1;
 
 % BRAIN EXTRACT LABEL VGFIT VALIDATION

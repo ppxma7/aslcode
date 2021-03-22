@@ -20,17 +20,17 @@ simASLsig_b = simASLsig_a + rising; %pseudo data
 % simASLsig2 = simASLsig.*linfunc;
 
 %
-scatter(TE, simASLsig_a)
-xlim([0 70])
-ylim([0 1.5])
-ylabel('ASL signal (au)')
-xlabel('TE (ms)')
-hold on
-scatter(TE, simASLsig_b)
+% scatter(TE, simASLsig_a)
+% xlim([0 70])
+% ylim([0 1.5])
+% ylabel('ASL signal (au)')
+% xlabel('TE (ms)')
+% hold on
+% scatter(TE, simASLsig_b)
+% 
+% legend('TI=800ms','TI=1500ms')
 
-legend('TI=800ms','TI=1500ms')
-
-%%
+%
 
 TR = 5000;
 
@@ -51,8 +51,8 @@ tau = 1700; % temporal length of tagged bolus
 % ROI, estimated using multi TI ASL acquisition
 % At short TIs, ASL signal dM has linear dependence on TI
 % dM = 0 when artTT > TI
-artTT = X;
-Moa = X;
+artTT = 400; %typical 500ms to arrive
+Moa = 1; % assume magnetization recovers to 1
 
 inv_eff = 0.9; %inversion efficiency
 
@@ -60,11 +60,28 @@ TI_artTT = [200 300 400 500];
 TE_artTT = 10;
 TR_artTT = 10000;
 
+theTIs = [200 750 1500 2750 4000 6500];
+
 A = 2.*inv_eff.*Moa.*(CBF/BB_lambda);
 
-dM = A.*(TI(1)-artTT).*exp(-TI(1)-T1a); % when artTT < TI
+%EQUATION (2)
+dM = A.*(theTIs-artTT).*exp(-theTIs./T1a); % when artTT < TI
 
-%dM = 2.*M0.*(TI(1)-artTT).*inv_eff.*CBF.* ()
+figure, scatter(1:length(dM),dM)
+
+Mo = 1;
+
+%EQUATION (3)
+%T1b = ???;
+T1prime_reciprocal = 1/T1a + CBF/BB_lambda;
+T1prime = 1/T1prime_reciprocal;
+k = 1/T1b - 1/T1prime;
+q1 = exp(k.*theTIs).*exp(-k.*artTT)-(exp(-k.*theTIs)/k.*(theTIs-artTT));
+q2 = exp(k.*theTIs).*exp(-k.*artTT)-(exp(-k.*(tau+artTT)/k.*tau));
+dMb = 2.*Mo.*(theTIs-artTT).*inv_eff.*CBF.*(max(0,theTIs-artTT)/theTIs-artTT).*(exp(-theTIs.*R1a).*q1.*(min(0,theTIs-artTT-tau)/TI-artTT-tau)+2.*Mo.*tau.*inv_eff.*exp(-theTIs.*R1a).*q2.*(max(0,theTIs-artTT-tau)/theTIs-artTT-tau));
+
+
+
 
 
 
