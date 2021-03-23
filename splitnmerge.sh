@@ -38,8 +38,6 @@ cd $1
 # fslchfiletype NIFTI_GZ $4 ${3}_base
 
 
-
-
 echo "calling fslroi"
 fslroi $2 ${3}_label1 $4 $6
 fslroi $2 ${3}_label2 $5 $6
