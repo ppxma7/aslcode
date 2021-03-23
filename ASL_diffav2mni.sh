@@ -9,14 +9,14 @@ anatlist="m001_H03 m001_H07 m001_H08 m001_H09 m001_H11 m001_H13 m001_H14 m001_H1
     msub-003 msub-004 msub-005 msub-006 msub-008 msub-011 msub-012 msub-014 msub-020 msub-021 msub-022 msub-024 msub-025 msub-026\
     msub-027 msub-028 msub-031 msub-032 msub-033 msub-034 msub-038"  
 
-anatlist="msub-038"
+#anatlist="msub-038"
 
-subjectlist="001_H07_V1 001_H07_V2 001_H08_V1 001_H08_V2 001_H09_V1 001_H09_V2 001_H11_V1 001_H11_V2 001_H13_V1 001_H13_V2\
-    001_H14_V1 001_H14_V2 001_H15_V1 001_H15_V2 001_H16_V1 001_H16_V2 001_H17_V1 001_H17_V2 001_H19_V1 001_H19_V2\
-    001_H23_V1 001_H23_V2 001_H24_V1 001_H24_V2 001_H25_V1 001_H25_V2 001_H27_V1 001_H27_V2 001_H28_V1 001_H28_V2\
-    001_H29_V1 001_H29_V2 001_H30_V1 001_H30_V2"
+# subjectlist="001_H07_V2 001_H08_V1 001_H08_V2 001_H09_V1 001_H09_V2 001_H11_V1 001_H11_V2 001_H13_V1 001_H13_V2\
+#     001_H14_V1 001_H14_V2 001_H15_V1 001_H15_V2 001_H16_V1 001_H16_V2 001_H17_V1 001_H19_V1 001_H19_V2\
+#     001_H23_V1 001_H23_V2 001_H24_V1 001_H24_V2 001_H25_V1 001_H25_V2 001_H27_V1 001_H27_V2 001_H28_V1 001_H28_V2\
+#     001_H29_V1 001_H29_V2 001_H30_V1 001_H30_V2"
 
-subjectlistP="001_P01_V1 001_P01_V2 001_P02_V1 001_P02_V2 001_P03_V1 001_P03_V2 001_P04_V1 001_P04_V2 001_P05_V1 001_P05_V2\
+subjectlist="001_P01_V1 001_P01_V2 001_P02_V1 001_P02_V2 001_P03_V1 001_P03_V2 001_P04_V1 001_P04_V2 001_P05_V1 001_P05_V2\
 	001_P06_V1 001_P06_V2 001_P07_V1 001_P08_V1 001_P08_V2 001_P09_V1 001_P09_V2 001_P10_V1 001_P10_V2 001_P11_V1\
 	001_P12_V1 001_P12_V2 001_P13_V2 001_P14_V1 001_P15_V1 001_P15_V2 001_P16_V1 001_P17_V1 001_P18_V1 001_P18_V2\
 	001_P19_V1 001_P19_V2 001_P20_V1 001_P20_V2 001_P21_V1 001_P21_V2 001_P22_V1 001_P22_V2 001_P23_V1 001_P23_V2\
@@ -29,12 +29,9 @@ subjectlistP="001_P01_V1 001_P01_V2 001_P02_V1 001_P02_V2 001_P03_V1 001_P03_V2 
 subjectlistJord="003 004 005 006 008 011 012 014 020 021 022 024 025 026 027 028 032 033 034 038"
 
 
-# anatlist="m001_H07"
 
-# subjectlist="001_H07_V1"
-#MOUNT="/Volumes/ares/data/HDREMODEL/PA/motion_corrected/"
-MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"
-MOUNTP="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
+#MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"
+MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
 
 MOUNTjord="/Volumes/ares/data/IBD/ASL/ASL_jord/"
 
@@ -71,7 +68,7 @@ cd ${MOUNT}
 for anatsub in $anatlist
 do
 	#echo mPA_${anatsub}.nii.gz
-	echo ${anatsub}.nii
+	#echo ${anatsub}.nii
 
 	for subject in $subjectlist
 	do
@@ -83,28 +80,63 @@ do
 
 			# In this case, actually better to use FLIRT
 
-			echo "Align EPI to Anatomical with 12 DOF..."
-			flirt -in ${MOUNT}/${subject}/${subject}_WIPASL17a_aslpp/diffav_calib.nii.gz\
-				-ref ${ANATMOUNT}/${anatsub}.nii\
-				-out ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt\
-				-omat ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt.mat\
-				-bins 256\
-				-cost corratio\
-				-searchrx -90 90\
-				-searchry -90 90\
-				-searchrz -90 90\
-				-dof 12\
-				-interp trilinear
+			#echo "Align EPI to Anatomical with 12 DOF..."
 
+			for file in $(find ${MOUNT}/${subject}/ -name 'diffav_calib.nii.gz' );
+			do 
+				echo $file
+				tmpPath=$(dirname $file)
+				echo $tmpPath
+
+				flirt -in $file\
+					-ref ${ANATMOUNT}/${anatsub}.nii\
+					-out $tmpPath/diffav_calib_flirt\
+					-omat $tmpPath/diffav_calib_flirt.mat\
+					-bins 256\
+					-cost corratio\
+					-searchrx -90 90\
+					-searchry -90 90\
+					-searchrz -90 90\
+					-dof 12\
+					-interp trilinear
+			done
+
+			for file2 in $(find ${MOUNT}/${subject}/ -name 'diffav_calib_flirt.nii.gz' );
+			do
 
 			# now apply transform to move EPI to MNI space
-			echo "Align EPI to standard using Anatomical transformation..."
-			flirt -in ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt\
-				-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
-				-out ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt_mni\
-				-applyxfm -init ${ANATMOUNT}/${anatsub}_brain_mni.mat
-
+				echo "Align EPI to standard using Anatomical transformation..."
+				tmpPath2=$(dirname $file2)
+				flirt -in $file2\
+					-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+					-out $tmpPath2/diffav_calib_flirt_mni\
+					-applyxfm -init ${ANATMOUNT}/${anatsub}_brain_mni.mat
+			done
 			
+			cd ${MOUNT}
+
+			# 				echo $file
+			# 	flirt -in ${MOUNT}/${subject}/${subject}_WIPASL17a_aslpp/diffav_calib.nii.gz\
+			# 		-ref ${ANATMOUNT}/${anatsub}.nii\
+			# 		-out ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt\
+			# 		-omat ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt.mat\
+			# 		-bins 256\
+			# 		-cost corratio\
+			# 		-searchrx -90 90\
+			# 		-searchry -90 90\
+			# 		-searchrz -90 90\
+			# 		-dof 12\
+			# 		-interp trilinear
+
+
+			# # now apply transform to move EPI to MNI space
+			# 	echo "Align EPI to standard using Anatomical transformation..."
+			# 	flirt -in ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt\
+			# 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+			# 		-out ${MOUNT}${subject}/${subject}_WIPASL17a_aslpp/diffav_calib_flirt_mni\
+			# 		-applyxfm -init ${ANATMOUNT}/${anatsub}_brain_mni.mat
+
+
 			# ORIGINAL AFNI CODE
 			#echo "Aligning centers..."
 			#@align_centers -base ${ANATMOUNT}/${anatsub}.nii -dset ${MOUNT}/${subject}/${subject}_WIPASL17a_aslpp/diffav_calib.nii.gz

@@ -13,7 +13,7 @@
 # example usage
 # sh /Users/ppzma/Documents/MATLAB/nottingham/bin/splitnmerge.sh . infile outfilename 0 30 30 basefile
 
-subjectlist="001_H07_V2 001_H08_V1 001_H08_V2 001_H09_V1 001_H09_V2 001_H11_V1 001_H11_V2 001_H13_V1 001_H13_V2\
+subjectlist="001_H07_V1 001_H07_V2 001_H08_V1 001_H08_V2 001_H09_V1 001_H09_V2 001_H11_V1 001_H11_V2 001_H13_V1 001_H13_V2\
     001_H14_V1 001_H14_V2 001_H15_V1 001_H15_V2 001_H16_V1 001_H16_V2 001_H17_V1 001_H19_V1 001_H19_V2\
     001_H23_V1 001_H23_V2 001_H24_V1 001_H24_V2 001_H25_V1 001_H25_V2 001_H27_V1 001_H27_V2 001_H28_V1 001_H28_V2\
     001_H29_V1 001_H29_V2 001_H30_V1 001_H30_V2"
@@ -30,9 +30,46 @@ subjectlist="001_H07_V1"
 MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"
 MOUNTP="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
 
-for subject in $subjectlist
+# for subject in $subjectlist
+# do
+# 	cd ${MOUNT}
+# 	# filename=$(basename -- "$fullfile")
+# 	# extension="${filename##*.}"
+# 	# filename="${filename%.*}"
+
+# 	# First, convert base to nii gz
+# 	SUBSTRING='base'
+# 	SUBSTRING2='SOURCE'
+# 	for entry in ${MOUNT}/${subject}/*.nii
+# 	do
+# 		if [[ "$entry" == *"$SUBSTRING"* ]]; then 
+# 			echo $entry
+# 			name=$(echo $entry | cut -f 1 -d '.')
+# 			echo $name
+# 			fslchfiletype NIFTI_GZ $entry $name
+# 			rm $entry
+# 		fi
+# 	done
+
+# 	# Then, chop up labels in asl data
+# 	for asldata in ${MOUNT}/${subject}/*.nii
+# 	do
+# 		if [[ "$asldata" != *"$SUBSTRING"* ]]; then #&& [[ "$asldata" != *"$SUBSTRING2"* ]];
+# 			echo $asldata
+# 			aslname=$(echo $asldata | cut -f 1 -d '.')
+# 			echo $aslname
+
+# 			fslroi $aslname ${aslname}_label1 0 30
+# 			fslroi $aslname ${aslname}_label2 30 30
+# 			#rm $asldata
+# 		fi
+# 	done
+
+# done
+
+for subject in $subjectlistP
 do
-	cd ${MOUNT}
+	cd ${MOUNTP}
 	# filename=$(basename -- "$fullfile")
 	# extension="${filename##*.}"
 	# filename="${filename%.*}"
@@ -40,7 +77,7 @@ do
 	# First, convert base to nii gz
 	SUBSTRING='base'
 	SUBSTRING2='SOURCE'
-	for entry in ${MOUNT}/${subject}/*.nii
+	for entry in ${MOUNTP}/${subject}/*.nii
 	do
 		if [[ "$entry" == *"$SUBSTRING"* ]]; then 
 			echo $entry
@@ -52,7 +89,7 @@ do
 	done
 
 	# Then, chop up labels in asl data
-	for asldata in ${MOUNT}/${subject}/*.nii
+	for asldata in ${MOUNTP}/${subject}/*.nii
 	do
 		if [[ "$asldata" != *"$SUBSTRING"* ]]; then #&& [[ "$asldata" != *"$SUBSTRING2"* ]];
 			echo $asldata
