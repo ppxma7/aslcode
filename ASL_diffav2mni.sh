@@ -7,7 +7,9 @@ anatlist="m001_H03 m001_H07 m001_H08 m001_H09 m001_H11 m001_H13 m001_H14 m001_H1
     m001_P37 m001_P40 m001_P41 m001_P42 m001_P43 m001_P44 m001_P45 m004_P01\
     mBL002 mBL003 mBL004 mBL005 mBL006 mBL007 mBL008 mBL010 mBL011 mBL012 mBL013 mBL014 mBL015 mBL016 mBL017 mBL018\
     msub-003 msub-004 msub-005 msub-006 msub-008 msub-011 msub-012 msub-014 msub-020 msub-021 msub-022 msub-024 msub-025 msub-026\
-    msub-027 msub-028 msub-031 msub-032 msub-033 msub-034 msub-0038"  
+    msub-027 msub-028 msub-031 msub-032 msub-033 msub-034 msub-038"  
+
+anatlist="msub-038"
 
 subjectlist="001_H07_V1 001_H07_V2 001_H07_V1 001_H08_V2 001_H09_V1 001_H09_V2 001_H11_V1 001_H11_V2 001_H13_V1 001_H13_V2\
     001_H14_V1 001_H14_V2 001_H15_V1 001_H15_V2 001_H16_V1 001_H16_V2 001_H17_V1 001_H17_V2 001_H19_V1 001_H19_V2\
@@ -37,27 +39,27 @@ ANATMOUNT="/Volumes/ares/data/IBD/STRUCTURAL/bias_corrected/"
 
 
 # First, we should align all anatomicals to MNI SPACE
-for anatsub in $anatlist
-do
-	echo ${anatsub}.nii
-	echo "Running bet..."
-	bet ${ANATMOUNT}/${anatsub}.nii ${ANATMOUNT}/${anatsub}_brain\
-	   -f 0.2 -g 0
-	echo "Running flirt now..."
-	flirt -in ${ANATMOUNT}/${anatsub}_brain.nii.gz\
-		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
-		-out ${ANATMOUNT}/${anatsub}_brain_mni.nii.gz\
-		-omat ${ANATMOUNT}/${anatsub}_brain_mni.mat\
-		-bins 256\
-		-cost corratio\
-		-searchrx -90 90\
-		-searchry -90 90\
-		-searchrz -90 90\
-		-dof 12\
-		-interp trilinear
-done
+# for anatsub in $anatlist
+# do
+# 	echo ${anatsub}.nii
+# 	echo "Running bet..."
+# 	bet ${ANATMOUNT}/${anatsub}.nii ${ANATMOUNT}/${anatsub}_brain\
+# 	   -f 0.2 -g 0
+# 	echo "Running flirt now..."
+# 	flirt -in ${ANATMOUNT}/${anatsub}_brain.nii.gz\
+# 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+# 		-out ${ANATMOUNT}/${anatsub}_brain_mni.nii.gz\
+# 		-omat ${ANATMOUNT}/${anatsub}_brain_mni.mat\
+# 		-bins 256\
+# 		-cost corratio\
+# 		-searchrx -90 90\
+# 		-searchry -90 90\
+# 		-searchrz -90 90\
+# 		-dof 12\
+# 		-interp trilinear
+# done
 
-return
+# return
 
 cd ${MOUNT}
 
