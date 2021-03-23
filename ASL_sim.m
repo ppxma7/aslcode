@@ -69,14 +69,18 @@ A = 2.*inv_eff.*Moa.*(CBF/BB_lambda);
 %EQUATION (2)
 dM = A.*(theTIs-artTT).*exp(-theTIs./T1a); % when artTT < TI
 
-dM(dM<0)=NaN; % to ensure below zero there is no negative dM (TI must be greater than artTT)
+dM(dM<0)=0; % to ensure below zero there is no negative dM (TI must be greater than artTT)
 
 figure, scatter(theTIs,dM)
+xlabel('TI (s)')
+xticks(theTIs)
+%xticklabels(theTIs)
+ylabel('dM')
 %
 Mo = 1;
 
 %EQUATION (3)
-%T1b = 2000;
+T1b = 2;
 
 T1prime_reciprocal = 1/T1a + CBF/BB_lambda;
 T1prime = 1/T1prime_reciprocal;
@@ -90,8 +94,12 @@ q2 = exp(k.*theTIs).*exp(-k.*artTT)-(exp(-k.*(tau+artTT)/k.*tau));
 dMb = 2.*Mo.*(theTIs-artTT).*inv_eff.*CBF.*(max(0,theTIs-artTT)/theTIs-artTT).*(exp(-theTIs.*R1a).*q1.*(min(0,theTIs-artTT-tau)/theTIs-artTT-tau)+2.*Mo.*tau.*inv_eff.*exp(-theTIs.*R1a).*q2.*(max(0,theTIs-artTT-tau)/theTIs-artTT-tau));
 
 
-figure, scatter(1:length(dMb),dMb)
-
+%figure, scatter(1:length(dMb),dMb)
+figure, scatter(theTIs,dMb)
+xlabel('TI (s)')
+xticks(theTIs)
+%xticklabels(theTIs)
+ylabel('dMb')
 
 
 
