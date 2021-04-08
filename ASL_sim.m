@@ -38,15 +38,10 @@ CBF = 70; % adult mice 191 mL/100g/min - for human brain 70 ml/100g/min
 
 CBF=CBF/6000; %%convert to SI units
 
-T2iv800 = 20.6; % ms
-T2iv1500 = 14.3;
-T2ev800 = 37.1;
-T2ev1500 = 34.5;
-
 
 T1a = 1.9; %longitudinal relaxation of arterial blood (ms) at 9.4 T 2.4s human at 3.0 T = 1.9 s
 R1a = 1/T1a;
-R1app = 1/17; %seconds
+R1app = 1/1.7; %seconds
 tau = 1.7; % temporal length of tagged bolus seconds
 
 % arrival time of the labeled bolus of blood water to imaging
@@ -66,7 +61,8 @@ theTIs = [0.2 0.75 1.5 2.75 4 6.5];
 
 A = 2.*inv_eff.*Moa.*(CBF/BB_lambda);
 
-%EQUATION (2)
+%% section 2.2
+% equation 2
 dM = A.*(theTIs-artTT).*exp(-theTIs./T1a); % when artTT < TI
 
 dM(dM<0)=0; % to ensure below zero there is no negative dM (TI must be greater than artTT)
@@ -79,18 +75,23 @@ ylabel('dM')
 %
 Mo = 1;
 
-%EQUATION (3)
 T1b = 2;
 
+% equation 7
 T1prime_reciprocal = 1/T1a + CBF/BB_lambda;
 T1prime = 1/T1prime_reciprocal;
+
+% equation 6
 k = 1/T1b - 1/T1prime; %%% Need to fix this bit, something going wrong
 
 % what if k is tiny and positive
 %k = 0.00001;
 
+% equation 4 & 5
 q1 = exp(k.*theTIs).*exp(-k.*artTT)-(exp(-k.*theTIs)/k.*(theTIs-artTT));
 q2 = exp(k.*theTIs).*exp(-k.*artTT)-(exp(-k.*(tau+artTT)/k.*tau));
+
+%equation 3
 dMb = 2.*Mo.*(theTIs-artTT).*inv_eff.*CBF.*(max(0,theTIs-artTT)/theTIs-artTT).*(exp(-theTIs.*R1a).*q1.*(min(0,theTIs-artTT-tau)/theTIs-artTT-tau)+2.*Mo.*tau.*inv_eff.*exp(-theTIs.*R1a).*q2.*(max(0,theTIs-artTT-tau)/theTIs-artTT-tau));
 
 
@@ -100,6 +101,39 @@ xlabel('TI (s)')
 xticks(theTIs)
 %xticklabels(theTIs)
 ylabel('dMb')
+
+%% section 2.3
+tissueTT = 0.5; % GUESS
+dR = R1app - R1a;
+T2iv800 = 20.6; % ms
+T2iv1500 = 14.3;
+T2ev800 = 37.1;
+T2ev1500 = 34.5;
+
+T2iv = [T2iv800, T2iv1500];
+T2ev = [T2ev800, T2ev1500];
+
+% equation 10
+dMiv = ((2.*Mo.*CBF)./BB_lambda) .*(exp(-theTIs.*R1a).*(min(artTT-theTIs+tau,0)-artTT)-(min(tissueTT-theTIs+tau,0)-tissueTT));
+
+% equation 11
+dMev = ((2.*Mo.*CBF)./BB_lambda) .*(exp(-theTIs.*R1app).*(exp(min(theTIs,tissueTT+tau).*dR) - exp(tissueTT.*dR)) ./ dR);
+
+%equation 9
+IV_fraction = dMiv ./ (dMiv + dMev);
+
+%equation 8
+% NEED TO FIX DIMENSIONS HERE
+% dMiv has 6 vals, TE has 10 vals, T2 has 2 values
+dMc = dMiv.*exp(-(TE./T2iv(1))) + dMev.*exp(-(TE./T2ev(1))); 
+
+%equation 12
+% water exchange time Twex
+% time for magnetically labeled vascular water to transfer across the BBB
+% into brain tissue entering the imaging slice/
+Twex = tissueTT - artTT;
+
+
 
 
 

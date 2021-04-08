@@ -13,10 +13,13 @@ subjectlistP="001_P18_V1 001_P18_V2\
 	001_P24_V1 001_P24_V2 001_P37_V1 001_P37_V2 001_P40_V1 001_P40_V2 001_P41_V1 001_P41_V2 001_P42_V1 001_P42_V2\
  	001_P43_V1 001_P43_V2 001_P44_V1 001_P44_V2 001_P45_V1 001_P45_V2 004_P01_V1 004_P01_V2"
 
+subjectlistJord="003 004 005 006 008 011 012 14 020 021 022 024 025 026 027 028 031 032 033 034 038"
+
 #subjectlist="001_H07_V2"
 
 MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"
 MOUNTP="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
+MOUNTJ="/Volumes/ares/data/IBD/ASL/ASL_jord/"
 
 # for subject in $subjectlist
 # do
@@ -34,12 +37,12 @@ MOUNTP="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
 # 	rm -r jsonfiles
 
 # done
-cd ${MOUNTP}
-for subjectP in $subjectlistP
+cd ${MOUNTJ}
+for subjectJ in $subjectlistJord
 do
 	echo "batch running dcm2niix"
-	dcm2niix ${MOUNTP}/${subjectP}
-	cd ${MOUNTP}/${subjectP}
+	dcm2niix ${MOUNTJ}/${subjectJ}
+	cd ${MOUNTJ}/${subjectJ}
 	mkdir parrec
 	mkdir jsonfiles
 	mv *.PAR parrec
@@ -49,7 +52,7 @@ do
 	tar -zcvf jsonfiles.tar.gz jsonfiles
 	rm -r parrec
 	rm -r jsonfiles
-	cd ${MOUNTP}
+	cd ${MOUNTJ}
 done
 
 

@@ -25,10 +25,12 @@ subjectlistP="001_P01_V1 001_P01_V2 001_P02_V1 001_P02_V2 001_P03_V1 001_P03_V2 
 	001_P24_V1 001_P24_V2 001_P37_V1 001_P37_V2 001_P40_V1 001_P40_V2 001_P41_V1 001_P41_V2 001_P42_V1 001_P42_V2\
 	001_P43_V1 001_P43_V2 001_P44_V1 001_P44_V2 001_P45_V1 001_P45_V2 004_P01_V1 004_P01_V2"
 
-subjectlist="001_H07_V1"
+subjectlist="003 004 005 006 008 011 012 14 020 021 022 024 025 026 027 028 031 032 033 034 038"
 
-MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"
-MOUNTP="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
+#MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"
+#MOUNTP="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
+MOUNT="/Volumes/ares/data/IBD/ASL/ASL_jord/"
+
 
 # for subject in $subjectlist
 # do
@@ -67,17 +69,17 @@ MOUNTP="/Volumes/ares/data/IBD/ASL/ASL_gita/Patients/"
 
 # done
 
-for subject in $subjectlistP
+for subject in $subjectlist
 do
-	cd ${MOUNTP}
+	cd ${MOUNT}
 	# filename=$(basename -- "$fullfile")
 	# extension="${filename##*.}"
 	# filename="${filename%.*}"
 
 	# First, convert base to nii gz
-	SUBSTRING='base'
+	SUBSTRING='BASE'
 	SUBSTRING2='SOURCE'
-	for entry in ${MOUNTP}/${subject}/*.nii
+	for entry in ${MOUNT}/${subject}/*.nii
 	do
 		if [[ "$entry" == *"$SUBSTRING"* ]]; then 
 			echo $entry
@@ -89,7 +91,7 @@ do
 	done
 
 	# Then, chop up labels in asl data
-	for asldata in ${MOUNTP}/${subject}/*.nii
+	for asldata in ${MOUNT}/${subject}/*.nii
 	do
 		if [[ "$asldata" != *"$SUBSTRING"* ]]; then #&& [[ "$asldata" != *"$SUBSTRING2"* ]];
 			echo $asldata
@@ -98,6 +100,14 @@ do
 
 			fslroi $aslname ${aslname}_label1 0 30
 			fslroi $aslname ${aslname}_label2 30 30
+
+			# fslsplit $aslname s$3 -t
+
+
+			# fslmerge -t ${aslname}_label1_int s${3}0000 s${3}0002 s${3}0004 s${3}0006 s${3}0008 s${3}0010 s${3}0012 s${3}0014 s${3}0016 s${3}0018 s${3}0020 s${3}0022 s${3}0024 s${3}0026 s${3}0028 s${3}0030 s${3}0032 s${3}0034 s${3}0036 s${3}0038 s${3}0040 s${3}0042 s${3}0044 s${3}0046 s${3}0048 s${3}0050 s${3}0052 s${3}0054 s${3}0056 s${3}0058
+			# fslmerge -t ${aslname}_label2_int s${3}0001 s${3}0003 s${3}0005 s${3}0007 s${3}0009 s${3}0011 s${3}0013 s${3}0015 s${3}0017 s${3}0019 s${3}0021 s${3}0023 s${3}0025 s${3}0027 s${3}0029 s${3}0031 s${3}0033 s${3}0035 s${3}0037 s${3}0039 s${3}0041 s${3}0043 s${3}0045 s${3}0047 s${3}0049 s${3}0051 s${3}0053 s${3}0055 s${3}0057 s${3}0059
+
+
 			#rm $asldata
 		fi
 	done
