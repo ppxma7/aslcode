@@ -123,15 +123,47 @@ dMev = ((2.*Mo.*CBF)./BB_lambda) .*(exp(-theTIs.*R1app).*(exp(min(theTIs,tissueT
 IV_fraction = dMiv ./ (dMiv + dMev);
 
 %equation 8
-% NEED TO FIX DIMENSIONS HERE
+% NEED TO FIX DIMENSIONS HERE - fixed
+dMc = zeros(6,10,2);
 % dMiv has 6 vals, TE has 10 vals, T2 has 2 values
-dMc = dMiv.*exp(-(TE./T2iv(1))) + dMev.*exp(-(TE./T2ev(1))); 
+for T2_idx = 1:length(T2iv)
+    for TE_idx = 1:length(TE)
+        tmpVal = dMiv.*exp(-(TE(TE_idx)./T2iv(T2_idx))) + dMev.*exp(-(TE(TE_idx)./T2ev(T2_idx)));
+        tmpVal = tmpVal(:)
+        dMc(:,TE_idx,T2_idx) = tmpVal;
+    end
+    
+end
 
 %equation 12
 % water exchange time Twex
 % time for magnetically labeled vascular water to transfer across the BBB
 % into brain tissue entering the imaging slice/
 Twex = tissueTT - artTT;
+
+% T2 1
+figure
+for ii = 1:10
+plot(theTIs, dMc(:,ii, 1))
+xlabel('TI (s)')
+xticks(theTIs)
+ylabel('dMc')
+
+hold on
+end
+
+
+% T2 2
+figure
+for ii = 1:10
+plot(theTIs, dMc(:,ii, 2))
+xlabel('TI (s)')
+xticks(theTIs)
+ylabel('dMc')
+
+hold on
+end
+
 
 
 
