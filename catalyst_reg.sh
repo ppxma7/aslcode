@@ -114,52 +114,85 @@ do
 					-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
 					-out $tmpPath2/base_9_10_flirt\
 					-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
-			done 
+			done
 
-			for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_30ms_label1.nii' );
+			for file3 in $(find ${MOUNT}/${subject}/ -name 'BCSFB_WIPBASE_300MS_20210505165327_11.nii' );
 			do
 
 				echo "Align secondary images to Anatomical..."
 				tmpPath2=$(dirname $file3)
 				flirt -in $file3\
 					-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
-					-out $tmpPath2/fair_30ms_label1_flirt\
+					-out $tmpPath2/sc_11_300ms_flirt\
 					-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
 			done 
 
-			for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_30ms_label2.nii' );
+			for file3 in $(find ${MOUNT}/${subject}/ -name 'BCSFB_WIPBASE_200MS_20210505165327_12.nii' );
 			do
 
 				echo "Align secondary images to Anatomical..."
 				tmpPath2=$(dirname $file3)
 				flirt -in $file3\
 					-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
-					-out $tmpPath2/fair_30ms_label2_flirt\
+					-out $tmpPath2/sc_12_200ms_flirt\
 					-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
 			done 
 
-			for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_400ms_label1.nii' );
+			for file3 in $(find ${MOUNT}/${subject}/ -name 'BCSFB_WIPBASE_100MS_20210505165327_13.nii' );
 			do
 
 				echo "Align secondary images to Anatomical..."
 				tmpPath2=$(dirname $file3)
 				flirt -in $file3\
 					-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
-					-out $tmpPath2/fair_400ms_label1_flirt\
+					-out $tmpPath2/sc_13_100ms_flirt\
 					-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
-			done 
+			done  
 
-			for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_400ms_label2.nii' );
-			do
 
-				echo "Align secondary images to Anatomical..."
-				tmpPath2=$(dirname $file3)
-				flirt -in $file3\
-					-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
-					-out $tmpPath2/fair_400ms_label2_flirt\
-					-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
-			done 
+			# for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_30ms_label1.nii' );
+			# do
 
+			# 	echo "Align secondary images to Anatomical..."
+			# 	tmpPath2=$(dirname $file3)
+			# 	flirt -in $file3\
+			# 		-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
+			# 		-out $tmpPath2/fair_30ms_label1_flirt\
+			# 		-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
+			# done 
+
+			# for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_30ms_label2.nii' );
+			# do
+
+			# 	echo "Align secondary images to Anatomical..."
+			# 	tmpPath2=$(dirname $file3)
+			# 	flirt -in $file3\
+			# 		-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
+			# 		-out $tmpPath2/fair_30ms_label2_flirt\
+			# 		-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
+			# done 
+
+			# for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_400ms_label1.nii' );
+			# do
+
+			# 	echo "Align secondary images to Anatomical..."
+			# 	tmpPath2=$(dirname $file3)
+			# 	flirt -in $file3\
+			# 		-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
+			# 		-out $tmpPath2/fair_400ms_label1_flirt\
+			# 		-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
+			# done 
+
+			# for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_400ms_label2.nii' );
+			# do
+
+			# 	echo "Align secondary images to Anatomical..."
+			# 	tmpPath2=$(dirname $file3)
+			# 	flirt -in $file3\
+			# 		-ref ${ANATMOUNT}/${anatsub}/m${anatsub}.nii\
+			# 		-out $tmpPath2/fair_400ms_label2_flirt\
+			# 		-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
+			# done 
 
 			# for file2 in $(find ${MOUNT}/${subject}/ -name 'diffav_calib_flirt.nii.gz' );
 			# do
