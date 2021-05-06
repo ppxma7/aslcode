@@ -13,10 +13,10 @@
 # example usage
 # sh /Users/ppzma/Documents/MATLAB/nottingham/bin/splitnmerge.sh . infile outfilename 0 30 30 basefile
 
-if [ $# -lt 7 ] ; then
+if [ $# -lt 6 ] ; then
      echo 
      # echo "Usage: sh splitnmerge.sh path indatafilename outdatafilename basename"
-     echo "Usage: sh splitnmerge.sh path indatafilename outdatafilename start end numdyn baseimage"	
+     echo "Usage: sh splitnmerge.sh path indatafilename outdatafilename start end numdyn" #baseimage	
      exit 1;
 fi
 
@@ -42,7 +42,10 @@ echo "calling fslroi"
 fslroi $2 ${3}_label1 $4 $6
 fslroi $2 ${3}_label2 $5 $6
 
-fslchfiletype NIFTI_GZ $7 ${3}_base
+fslchfiletype NIFTI ${3}_label1 ${3}_label1
+fslchfiletype NIFTI ${3}_label2 ${3}_label2
+
+#fslchfiletype NIFTI_GZ $7 ${3}_base
 
 
 
