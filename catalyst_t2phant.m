@@ -178,7 +178,9 @@ t2map = zeros(length(msc30mvec),1);
 opts = optimset('Display','off');
 
 tmp = 0;
-fprintf('%.3f%%\n',tmp)
+%fprintf('%.3f%%\n',tmp)
+
+% this takes 13 minutes
 tic
 for mydude = 1:length(hix30)
     y = [hix30(mydude);hix100(mydude);hix200(mydude);hix300(mydude);hix400(mydude)];
@@ -186,12 +188,16 @@ for mydude = 1:length(hix30)
     t2map(mydude) = x(2);
     
     tmp = (mydude ./ length(hix30)) .*100;
-    fprintf('\b\b\b\b\b\b%.3f%%',tmp)
+    %fprintf('\b\b\b\b\b\b\b%.3f%%',tmp)
 end
 toc
 
 t2map_rs = reshape(t2map, [64 64 8]);
 
+mri = msc30;
+mri.vol = t2map_rs;
+outputfilename = [mypath2 't2map.nii'];
+MRIwrite(mri,outputfilename);
 
 % tic
 % for iz = 1:length(kk)
