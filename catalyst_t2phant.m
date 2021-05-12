@@ -108,6 +108,46 @@ ylabel('M')
 
 %% now fit to everywhere and get a T2 map
 
+% make an empty head
+F = @(x,xdata)x(1).*exp(-xdata/x(2)); 
+x0 = [20 100000];
+
+
+t2map = zeros(size(msc30.vol));
+TEs = [30;100;200;300;400];
+
+t = TEs;
+
+xx = size(msc30.vol,1);
+yy = size(msc30.vol,2);
+zz = size(msc30.vol,3);
+tic
+for iz = 1:zz
+    for iy = 1:yy
+        for ix = 1:xx
+            hix30 = msc30.vol(ix,iy,iz);
+            hix100 = msc100.vol(ix,iy,iz,1);
+            hix200 = msc200.vol(ix,iy,iz,1);
+            hix300 = msc300.vol(ix,iy,iz,1);
+            hix400 = msc400.vol(ix,iy,iz,1);
+            y = [hix30;hix100;hix200;hix300;hix400];
+            [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y);
+            
+            t2map(ix,iy,iz) = x(2);
+        end
+    end
+end
+toc
+            
+            
+            
+            
+            
+            
+            
+
+
+
 
 
 
