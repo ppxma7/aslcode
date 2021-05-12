@@ -58,11 +58,16 @@ ylabel('M')
 
 mypath2 ='/Volumes/nemosine/CATALYST_BCSFB/ASL/03315_2021_05_05/';
 
+
 sc30 = 'base_7_8_flirt.nii.gz';
 sc400 = 'base_9_10_flirt.nii.gz';
 sc200 = 'sc_12_200ms_flirt.nii.gz';
 sc300 = 'sc_11_300ms_flirt.nii.gz';
 sc100 = 'sc_13_100ms_flirt.nii.gz';
+scmask = 'mymask.nii.gz';
+
+mymask = MRIread([mypath2 scmask]);
+mymaskv = mymask.vol(:,:,:,1);
 
 msc30 = MRIread([mypath2 sc30]);
 msc100 = MRIread([mypath2 sc100]);
@@ -108,38 +113,71 @@ ylabel('M')
 
 %% now fit to everywhere and get a T2 map
 
-% make an empty head
+msc30mask = msc30.vol.*mymaskv;
+msc100mask = msc100.vol(:,:,:,1).*mymaskv;
+msc200mask = msc200.vol(:,:,:,1).*mymaskv;
+msc300mask = msc300.vol(:,:,:,1).*mymaskv;
+msc400mask = msc400.vol(:,:,:,1).*mymaskv;
+
+msc30mvec = msc30mask(:);
+msc100mvec = msc100mask(:);
+msc200mvec = msc200mask(:);
+msc300mvec = msc300mask(:);
+msc400mvec = msc400mask(:);
+
+vec = mymaskv(:);
+idx = find(vec>0);
+[ii,jj,kk] = ind2sub([256,256,162],idx);
+
+
+% fitting equation
 F = @(x,xdata)x(1).*exp(-xdata/x(2)); 
 x0 = [20 100000];
 
 
-t2map = zeros(size(msc30.vol));
+%t2map = zeros(size(msc30mask));
 TEs = [30;100;200;300;400];
 
 t = TEs;
 
-xx = size(msc30.vol,1);
-yy = size(msc30.vol,2);
-zz = size(msc30.vol,3);
+
+hix30 = msc30mvec(idx(thisVox));
+hix100 = msc100mvec(idx(thisVox));
+hix200 = msc200mvec(idx(thisVox));
+hix300 = msc300mvec(idx(thisVox));
+hix400 = msc400mvec(idx(thisVox));
+
+t2map = zeros(length(msc30mvec),1);
+
 tic
-for iz = 1:zz
-    for iy = 1:yy
-        for ix = 1:xx
-            hix30 = msc30.vol(ix,iy,iz);
-            hix100 = msc100.vol(ix,iy,iz,1);
-            hix200 = msc200.vol(ix,iy,iz,1);
-            hix300 = msc300.vol(ix,iy,iz,1);
-            hix400 = msc400.vol(ix,iy,iz,1);
-            y = [hix30;hix100;hix200;hix300;hix400];
-            [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y);
-            
-            t2map(ix,iy,iz) = x(2);
-        end
-    end
+for mydude = 1:length(hix30)
+    y = [hix30(mydude);hix100(mydude);hix200(mydude);hix300(mydude);hix400(mydude)];
+    [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y);    
+    t2map(idx(mydude)) = x(2);
 end
 toc
-            
-            
+
+
+% tic
+% for iz = 1:length(kk)
+%     for iy = 1:length(jj)
+%         for ix = 1:length(ii)
+% 
+%             hix30 = msc30mask(ii(ix),jj(iy),kk(iz));
+%             hix100 = msc100mask(ii(ix),jj(iy),kk(iz),1);
+%             hix200 = msc200mask(ii(ix),jj(iy),kk(iz),1);
+%             hix300 = msc300mask(ii(ix),jj(iy),kk(iz),1);
+%             hix400 = msc400mask(ii(ix),jj(iy),kk(iz),1);
+%             
+%             y = [hix30;hix100;hix200;hix300;hix400];
+%             [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y);
+%             
+%             t2map(ix,iy,iz) = x(2);
+%         end
+%     end
+% end
+% toc
+% 
             
             
             
