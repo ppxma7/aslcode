@@ -58,16 +58,19 @@ ylabel('M')
 
 mypath2 ='/Volumes/nemosine/CATALYST_BCSFB/ASL/03315_2021_05_05/';
 
+% so the native space are 64 64 8
+% MPRAGE space is 256 256 162
+sc30 = 'BCSFB_WIPBASE_30MS_20210505165327_7.nii';
+sc400 = 'BCSFB_WIPBASE_400MS_20210505165327_9.nii';
+sc200 = 'BCSFB_WIPBASE_200MS_20210505165327_12.nii';
+sc300 = 'BCSFB_WIPBASE_300MS_20210505165327_11.nii';
+sc100 = 'BCSFB_WIPBASE_100MS_20210505165327_13.nii';
 
-sc30 = 'base_7_8_flirt.nii.gz';
-sc400 = 'base_9_10_flirt.nii.gz';
-sc200 = 'sc_12_200ms_flirt.nii.gz';
-sc300 = 'sc_11_300ms_flirt.nii.gz';
-sc100 = 'sc_13_100ms_flirt.nii.gz';
-scmask = 'mymask.nii.gz';
-
-mymask = MRIread([mypath2 scmask]);
-mymaskv = mymask.vol(:,:,:,1);
+% need mask with MPRAGE space data but not in native space
+%scmask = 'mymask.nii.gz';
+% 
+% mymask = MRIread([mypath2 scmask]);
+% mymaskv = mymask.vol(:,:,:,1);
 
 msc30 = MRIread([mypath2 sc30]);
 msc100 = MRIread([mypath2 sc100]);
@@ -75,10 +78,16 @@ msc200 = MRIread([mypath2 sc200]);
 msc300 = MRIread([mypath2 sc300]);
 msc400 = MRIread([mypath2 sc400]);
 
-chorplex = 106;
-chorpley = 98;
-chorplez = 83;
+% chorplex = 106;
+% chorpley = 98;
+% chorplez = 83;
+% chorplet = 1;
+
+chorplex = 24;
+chorpley = 23;
+chorplez = 3;
 chorplet = 1;
+
 
 hix30 = msc30.vol(chorplex,chorpley,chorplez);
 hix100 = msc100.vol(chorplex,chorpley,chorplez,chorplet);
@@ -113,21 +122,32 @@ ylabel('M')
 
 %% now fit to everywhere and get a T2 map
 
-msc30mask = msc30.vol.*mymaskv;
-msc100mask = msc100.vol(:,:,:,1).*mymaskv;
-msc200mask = msc200.vol(:,:,:,1).*mymaskv;
-msc300mask = msc300.vol(:,:,:,1).*mymaskv;
-msc400mask = msc400.vol(:,:,:,1).*mymaskv;
+% this will take 5 hours
 
-msc30mvec = msc30mask(:);
-msc100mvec = msc100mask(:);
-msc200mvec = msc200mask(:);
-msc300mvec = msc300mask(:);
-msc400mvec = msc400mask(:);
+% msc30mask = msc30.vol.*mymaskv;
+% msc100mask = msc100.vol(:,:,:,1).*mymaskv;
+% msc200mask = msc200.vol(:,:,:,1).*mymaskv;
+% msc300mask = msc300.vol(:,:,:,1).*mymaskv;
+% msc400mask = msc400.vol(:,:,:,1).*mymaskv;
+% msc30mvec = msc30mask(:);
+% msc100mvec = msc100mask(:);
+% msc200mvec = msc200mask(:);
+% msc300mvec = msc300mask(:);
+% msc400mvec = msc400mask(:);
 
-vec = mymaskv(:);
-idx = find(vec>0);
-[ii,jj,kk] = ind2sub([256,256,162],idx);
+msc30mvec = msc30.vol(:);
+msc100mvec = msc100.vol(:,:,:,1);
+msc100mvec = msc100mvec(:);
+msc200mvec = msc200.vol(:,:,:,1);
+msc200mvec = msc200mvec(:);
+msc300mvec = msc300.vol(:,:,:,1);
+msc300mvec = msc300mvec(:);
+msc400mvec = msc400.vol(:,:,:,1);
+msc400mvec = msc400mvec(:);
+
+% vec = mymaskv(:);
+% idx = find(vec>0);
+% [ii,jj,kk] = ind2sub([256,256,162],idx);
 
 
 % fitting equation
@@ -141,21 +161,36 @@ TEs = [30;100;200;300;400];
 t = TEs;
 
 
-hix30 = msc30mvec(idx(thisVox));
-hix100 = msc100mvec(idx(thisVox));
-hix200 = msc200mvec(idx(thisVox));
-hix300 = msc300mvec(idx(thisVox));
-hix400 = msc400mvec(idx(thisVox));
+% hix30 = msc30mvec(idx);
+% hix100 = msc100mvec(idx);
+% hix200 = msc200mvec(idx);
+% hix300 = msc300mvec(idx);
+% hix400 = msc400mvec(idx);
+hix30 = msc30mvec;
+hix100 = msc100mvec;
+hix200 = msc200mvec;
+hix300 = msc300mvec;
+hix400 = msc400mvec;
+
 
 t2map = zeros(length(msc30mvec),1);
 
+opts = optimset('Display','off');
+
+tmp = 0;
+fprintf('%.3f%%\n',tmp)
 tic
 for mydude = 1:length(hix30)
     y = [hix30(mydude);hix100(mydude);hix200(mydude);hix300(mydude);hix400(mydude)];
-    [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y);    
-    t2map(idx(mydude)) = x(2);
+    [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y,[],[],opts);    
+    t2map(mydude) = x(2);
+    
+    tmp = (mydude ./ length(hix30)) .*100;
+    fprintf('\b\b\b\b\b\b%.3f%%',tmp)
 end
 toc
+
+t2map_rs = reshape(t2map, [64 64 8]);
 
 
 % tic
