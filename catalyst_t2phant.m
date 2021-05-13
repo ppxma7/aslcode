@@ -1,3 +1,15 @@
+%% CATALYST_T2_PHANT
+%
+% This code tries to fit a T2 decay curve to data collected at various TEs.
+% We have a phantom dataset, and also a head.
+% So far using a monoexponential fit
+% Spits out a T2 map for the head
+% This is done in native space for speed reasons
+
+% ma 2021-05-13
+
+
+%% Phantom
 
 % fit T2 map to different TEs
 mypath ='/Volumes/nemosine/CATALYST_BCSFB/ASL/phantom_2021_05_05/';
@@ -83,9 +95,10 @@ msc400 = MRIread([mypath2 sc400]);
 % chorplez = 83;
 % chorplet = 1;
 
-chorplex = 24;
-chorpley = 23;
-chorplez = 3;
+%% pick a good voxel
+chorplex = 19;
+chorpley = 25;
+chorplez = 4;
 chorplet = 1;
 
 
@@ -98,27 +111,40 @@ hix400 = msc400.vol(chorplex,chorpley,chorplez,chorplet);
 hix = [hix30;hix100;hix200;hix300;hix400];
 TEs = [30;100;200;300;400];
 
-% plot the real data now
+%plot the real data now
 % figure
 % scatter(TEs,hix)
 % xlabel('TE (ms)')
 % ylabel('M (au)')
+
 %% fit to head 
 t = TEs;
 y = hix;
 
 figure
 plot(t,y,'ro')
+opts = optimoptions('lsqcurvefit','Algorithm','levenberg-marquardt','Display','off');
+% monoexp
+% M = ke^-TE/T2 + offset
+F = @(x,xdata)x(1).*exp(-xdata/x(2)) +x(3); 
 
-F = @(x,xdata)x(1).*exp(-xdata/x(2)); 
-x0 = [20 50000];
-[x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y)
+% biexp
+% M = k1e^-TE/T2short + k2e^-TE/T2long + offset
+% note that from literature, only pixels were 4*T2short < T2long
+%https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4180725/
+F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+x(3).*exp(-xdata/x(4));
+
+x0 = [0 10000 0 25000];
+%x0 = [20 50000 ];
+[x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y,[],[],opts)
+[x2,resnorm2,~,exitflag2,output2] = lsqcurvefit(F2,x0,t,y,[],[],opts)
 
 hold on
-plot(t,F(x,t))
-hold off
+plot(t,F(x,t),'-b','Linewidth',2)
+plot(t,F2(x2,t),'--m','Linewidth',2)
 xlabel('TE (ms)')
 ylabel('M')
+legend([{'Data'},{'Monoexp'},{'Biexp'}])
 
 %% now fit to everywhere and get a T2 map
 
@@ -175,10 +201,9 @@ hix400 = msc400mvec;
 
 t2map = zeros(length(msc30mvec),1);
 
-opts = optimset('Display','off');
+opts = optimoptions('lsqcurvefit','Algorithm','levenberg-marquardt','Display','off');
 
 tmp = 0;
-%fprintf('%.3f%%\n',tmp)
 
 % this takes 13 minutes
 tic
@@ -188,16 +213,16 @@ for mydude = 1:length(hix30)
     t2map(mydude) = x(2);
     
     tmp = (mydude ./ length(hix30)) .*100;
-    %fprintf('\b\b\b\b\b\b\b%.3f%%',tmp)
 end
 toc
 
-t2map_rs = reshape(t2map, [64 64 8]);
+t2map_rs = reshape(t2map, size(msc30.vol));
 
 mri = msc30;
 mri.vol = t2map_rs;
 outputfilename = [mypath2 't2map.nii'];
 MRIwrite(mri,outputfilename);
+
 
 % tic
 % for iz = 1:length(kk)
