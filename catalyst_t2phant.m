@@ -132,9 +132,9 @@ F = @(x,xdata)x(1).*exp(-xdata/x(2)) +x(3);
 % M = k1e^-TE/T2short + k2e^-TE/T2long + offset
 % note that from literature, only pixels were 4*T2short < T2long
 %https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4180725/
-F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+x(3).*exp(-xdata/x(4));
+F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+x(3).*exp(-xdata/x(4) +x(5));
 
-x0 = [0 10000 0 25000];
+x0 = [0 10000 0 25000 0];
 %x0 = [20 50000 ];
 [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y,[],[],opts)
 [x2,resnorm2,~,exitflag2,output2] = lsqcurvefit(F2,x0,t,y,[],[],opts)
@@ -183,8 +183,8 @@ msc400mvec = msc400mvec(:);
 % monoexp
 F = @(x,xdata)x(1).*exp(-xdata/x(2)) +x(3); 
 % biexp
-F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+x(3).*exp(-xdata/x(4));
-x0 = [0 10000 0 25000];
+F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+x(3).*exp(-xdata/x(4) + x(5));
+x0 = [0 10000 0 25000 0];
 
 %F = @(x,xdata)x(1).*exp(-xdata/x(2)); 
 %x0 = [20 100000];
@@ -211,6 +211,14 @@ hix400 = msc400mvec;
 t2map_mono = zeros(length(msc30mvec),1);
 t2map_bi = zeros(length(msc30mvec),1);
 
+mono_x1= zeros(length(msc30mvec),1);
+mono_x2= zeros(length(msc30mvec),1);
+mono_x3= zeros(length(msc30mvec),1);
+
+bi_x1= zeros(length(msc30mvec),1);
+bi_x2= zeros(length(msc30mvec),1);
+bi_x3= zeros(length(msc30mvec),1);
+bi_x4= zeros(length(msc30mvec),1);
 
 opts = optimoptions('lsqcurvefit','Algorithm','levenberg-marquardt','Display','off');
 
@@ -222,25 +230,67 @@ for mydude = 1:length(hix30)
     y = [hix30(mydude);hix100(mydude);hix200(mydude);hix300(mydude);hix400(mydude)];
     [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y,[],[],opts);  
     [x2,resnorm2,~,exitflag2,output2] = lsqcurvefit(F2,x0,t,y,[],[],opts);    
-    t2map_mono(mydude) = x(2);
-    t2map_bi(mydude) = x2(2);
+%     t2map_mono(mydude) = x(2);
+%     t2map_bi(mydude) = x2(2);
+    
+    mono_x1(mydude) = x(1);
+    mono_x2(mydude) = x(2);
+    mono_x3(mydude) = x(3);
+    
+    
+    bi_x1(mydude) = x2(1);
+    bi_x2(mydude) = x2(2);
+    bi_x3(mydude) = x2(3);
+    bi_x4(mydude) = x2(4);
     
     %tmp = (mydude ./ length(hix30)) .*100;
 end
 toc
 
-t2mapmono_rs = reshape(t2map_mono, size(msc30.vol));
-t2mapbi_rs = reshape(t2map_bi, size(msc30.vol));
+
+
+mono_x1_rs = reshape(mono_x1, size(msc30.vol));
+mono_x2_rs = reshape(mono_x2, size(msc30.vol));
+mono_x3_rs = reshape(mono_x3, size(msc30.vol));
+bi_x1_rs = reshape(bi_x1, size(msc30.vol));
+bi_x2_rs = reshape(bi_x2, size(msc30.vol));
+bi_x3_rs = reshape(bi_x3, size(msc30.vol));
+bi_x4_rs = reshape(bi_x4, size(msc30.vol));
+
 
 mri = msc30;
-mri.vol = t2mapmono_rs;
-outputfilename = [mypath2 't2mapmono.nii'];
+mri.vol = mono_x1_rs;
+outputfilename = [mypath2 'mono_x1.nii'];
 MRIwrite(mri,outputfilename);
 
 mri = msc30;
-mri.vol = t2mapbi_rs;
-outputfilename = [mypath2 't2mapbi.nii'];
+mri.vol = mono_x2_rs;
+outputfilename = [mypath2 'mono_x2.nii'];
 MRIwrite(mri,outputfilename);
+mri = msc30;
+mri.vol = mono_x3_rs;
+outputfilename = [mypath2 'mono_x3.nii'];
+MRIwrite(mri,outputfilename);
+mri = msc30;
+mri.vol = bi_x1_rs;
+outputfilename = [mypath2 'bi_x1.nii'];
+MRIwrite(mri,outputfilename);
+mri = msc30;
+mri.vol = bi_x2_rs;
+outputfilename = [mypath2 'bi_x2.nii'];
+MRIwrite(mri,outputfilename);
+mri = msc30;
+mri.vol = bi_x3_rs;
+outputfilename = [mypath2 'bi_x3.nii'];
+MRIwrite(mri,outputfilename);
+mri = msc30;
+mri.vol = bi_x4_rs;
+outputfilename = [mypath2 'bi_x4.nii'];
+MRIwrite(mri,outputfilename);
+
+
+
+
 
 
 % tic
