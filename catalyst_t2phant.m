@@ -96,7 +96,7 @@ msc400 = MRIread([mypath2 sc400]);
 % chorplet = 1;
 
 %% pick a good voxel
-chorplex = 19;
+chorplex = 24;
 chorpley = 25;
 chorplez = 4;
 chorplet = 1;
@@ -146,6 +146,9 @@ xlabel('TE (ms)')
 ylabel('M')
 legend([{'Data'},{'Monoexp'},{'Biexp'}])
 
+figure
+plot(t,log(y))
+
 %% now fit to everywhere and get a T2 map
 
 % this will take 5 hours
@@ -177,8 +180,14 @@ msc400mvec = msc400mvec(:);
 
 
 % fitting equation
-F = @(x,xdata)x(1).*exp(-xdata/x(2)); 
-x0 = [20 100000];
+% monoexp
+F = @(x,xdata)x(1).*exp(-xdata/x(2)) +x(3); 
+% biexp
+F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+x(3).*exp(-xdata/x(4));
+x0 = [0 10000 0 25000];
+
+%F = @(x,xdata)x(1).*exp(-xdata/x(2)); 
+%x0 = [20 100000];
 
 
 %t2map = zeros(size(msc30mask));
@@ -199,7 +208,9 @@ hix300 = msc300mvec;
 hix400 = msc400mvec;
 
 
-t2map = zeros(length(msc30mvec),1);
+t2map_mono = zeros(length(msc30mvec),1);
+t2map_bi = zeros(length(msc30mvec),1);
+
 
 opts = optimoptions('lsqcurvefit','Algorithm','levenberg-marquardt','Display','off');
 
@@ -209,18 +220,26 @@ tmp = 0;
 tic
 for mydude = 1:length(hix30)
     y = [hix30(mydude);hix100(mydude);hix200(mydude);hix300(mydude);hix400(mydude)];
-    [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y,[],[],opts);    
-    t2map(mydude) = x(2);
+    [x,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y,[],[],opts);  
+    [x2,resnorm2,~,exitflag2,output2] = lsqcurvefit(F2,x0,t,y,[],[],opts);    
+    t2map_mono(mydude) = x(2);
+    t2map_bi(mydude) = x2(2);
     
-    tmp = (mydude ./ length(hix30)) .*100;
+    %tmp = (mydude ./ length(hix30)) .*100;
 end
 toc
 
-t2map_rs = reshape(t2map, size(msc30.vol));
+t2mapmono_rs = reshape(t2map_mono, size(msc30.vol));
+t2mapbi_rs = reshape(t2map_bi, size(msc30.vol));
 
 mri = msc30;
-mri.vol = t2map_rs;
-outputfilename = [mypath2 't2map.nii'];
+mri.vol = t2mapmono_rs;
+outputfilename = [mypath2 't2mapmono.nii'];
+MRIwrite(mri,outputfilename);
+
+mri = msc30;
+mri.vol = t2mapbi_rs;
+outputfilename = [mypath2 't2mapbi.nii'];
 MRIwrite(mri,outputfilename);
 
 
