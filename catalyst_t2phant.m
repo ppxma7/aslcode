@@ -146,8 +146,56 @@ xlabel('TE (ms)')
 ylabel('M')
 legend([{'Data'},{'Monoexp'},{'Biexp'}])
 
-figure
-plot(t,log(y))
+
+
+%% can we try to run our ASL_sim.m code as a third fitting option?
+T1a = 1.9; %longitudinal relaxation of arterial blood (ms) at 9.4 T 2.4s human at 3.0 T = 1.9 s
+R1a = 1/T1a;
+R1app = 1/1.7; %seconds
+tau = 1.7; % temporal length of tagged bolus seconds
+BB_lambda = 0.9;
+CBF = 70; % adult mice 191 mL/100g/min - for human brain 70 ml/100g/min
+CBF=CBF/6000;
+artTT = 0.400; %typical 500ms to arrive
+Moa = 1; % assume magnetization recovers to 1
+inv_eff = 0.9; %inversion efficiency
+%TI_artTT = [0.2 0.3 0.4 0.5];
+%TE_artTT = 0.01;
+%TR_artTT = 10; % seconds
+
+%theTIs = [0.2 0.75 1.5 2.75 4 6.5];
+
+% for these data, we only have one TI
+theTIs = [0.4];
+
+A = 2.*inv_eff.*Moa.*(CBF/BB_lambda);
+
+tissueTT = 0.5; % GUESS
+dR = R1app - R1a;
+T2iv800 = 20.6; % ms
+T2iv1500 = 14.3;
+T2ev800 = 37.1;
+T2ev1500 = 34.5;
+
+T2iv = [T2iv800, T2iv1500];
+T2ev = [T2ev800, T2ev1500];
+
+TEs = [30;100;200;300;400];
+
+
+% equation 10
+dMiv = ((2.*Mo.*CBF)./BB_lambda) .*(exp(-theTIs.*R1a).*(min(artTT-theTIs+tau,0)-artTT)-(min(tissueTT-theTIs+tau,0)-tissueTT));
+
+% equation 11
+dMev = ((2.*Mo.*CBF)./BB_lambda) .*(exp(-theTIs.*R1app).*(exp(min(theTIs,tissueTT+tau).*dR) - exp(tissueTT.*dR)) ./ dR);
+
+%equation 9
+IV_fraction = dMiv ./ (dMiv + dMev);
+% this is equation 8 from Ohene
+dMc = dMiv.*exp(-(TEs./T2iv)) + dMev.*exp(-(TEs./T2ev));
+
+% figure
+% plot(t,log(y))
 
 %% now fit to everywhere and get a T2 map
 
