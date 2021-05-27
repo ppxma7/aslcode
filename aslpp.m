@@ -96,6 +96,7 @@ val_BETLabel = [0 1];
 che_BETLabel = @(x) ismember(x, val_BETLabel);
 
 % BRAIN EXTRACT LABEL FIT VALIDATION
+% default here is 0.2 MICHAEL 
 def_BETLabelf = 0.2; % Fractional intensity threshold of label brain extraction (0 to 1).
 che_BETLabelf = @(x) x>=0 & x<=1;
 

@@ -96,10 +96,12 @@ msc400 = MRIread([mypath2 sc400]);
 % chorplet = 1;
 
 %% pick a good voxel
-chorplex = 24;
-chorpley = 25;
-chorplez = 4;
+chorplex = 30;
+chorpley = 30;
+chorplez = 2;
 chorplet = 1;
+
+% check simulation
 
 
 hix30 = msc30.vol(chorplex,chorpley,chorplez);
@@ -117,7 +119,7 @@ TEs = [30;100;200;300;400];
 % xlabel('TE (ms)')
 % ylabel('M (au)')
 
-%% fit to head 
+%fit to head 
 t = TEs;
 y = hix;
 
@@ -132,7 +134,13 @@ F = @(x,xdata)x(1).*exp(-xdata/x(2)) +x(3);
 % M = k1e^-TE/T2short + k2e^-TE/T2long + offset
 % note that from literature, only pixels were 4*T2short < T2long
 %https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4180725/
-F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+x(3).*exp(-xdata/x(4) +x(5));
+
+% F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+(x(3)).*exp(-xdata/x(4) +x(5));
+
+% nuance for biexp is from Sue k1 + k2 < 1
+F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+(1-x(3)).*exp(-xdata/x(4) +x(5));
+
+% 
 
 x0 = [0 10000 0 25000 0];
 %x0 = [20 50000 ];
@@ -150,6 +158,8 @@ legend([{'Data'},{'Monoexp'},{'Biexp'}])
 
 %% can we try to run our ASL_sim.m code as a third fitting option?
 T1a = 1.9; %longitudinal relaxation of arterial blood (ms) at 9.4 T 2.4s human at 3.0 T = 1.9 s
+Mo = 1;
+
 R1a = 1/T1a;
 R1app = 1/1.7; %seconds
 tau = 1.7; % temporal length of tagged bolus seconds
