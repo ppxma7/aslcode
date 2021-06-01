@@ -68,10 +68,10 @@ toc
 %%
 
 
-mymeansmo = mean(x1);
-mymeansbi = mean(x2);
-myvarmo = var(x1);
-myvarbi = var(x2);
+mymeansmo = mean(x1)
+mymeansbi = mean(x2)
+myvarmo = var(x1)
+myvarbi = var(x2)
 
 %%
 randplot = 500;
