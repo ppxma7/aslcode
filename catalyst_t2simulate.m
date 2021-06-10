@@ -1,7 +1,7 @@
 % simulate a curve
 
 
-t = [20 30 40 50 60 70 80 90 100 150 200 250 300 350 400];
+t = [10 20 30 40 50 60 70 80 90 100 150 200 250 300 350 400];
 
 
 T2short = 40;
@@ -14,7 +14,7 @@ ymono = simk.*exp(-t/T2short); % monoexp curve
 ybi = simk.*exp(-t/T2short) + simk2.*exp(-t/T2long); %biexp curve
 
 % add noise snr 50:1 or 20:1
-hmnoise = 1./50;
+hmnoise = 1./100;
 
 outmono = ymono + hmnoise*rand(size(t));
 outbi = ybi + hmnoise*rand(size(t));
@@ -25,6 +25,10 @@ hold on
 scatter(t,ybi,'ro')
 legend([{'Monoexp'},{'Biexp'}])
 % ylim([0 20000])
+figure
+scatter(t,outmono,'ko')
+hold on
+scatter(t,outbi,'ro')
 
 %%
 
@@ -50,6 +54,10 @@ x2 = zeros(1000,4);
 outmono = zeros(1000,length(t));
 outbi = zeros(1000,length(t));
 
+lb = [0 0 0 0];
+ub = [2 100 300 2];
+
+rng(42)
 
 % 6 seconds
 tic
@@ -59,13 +67,13 @@ for ii = 1:myboot
     outbi(ii,:,:) = ybi + hmnoise*rand(size(t));
     
     [x1(ii,:,:),resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,outmono(ii,:,:),[],[],opts);
-    [x2(ii,:,:),resnorm2,~,exitflag2,output2] = lsqcurvefit(F2,x02,t,outbi(ii,:,:),[],[],opts);
+    [x2(ii,:,:),resnorm2,~,exitflag2,output2] = lsqcurvefit(F2,x02,t,outbi(ii,:,:),lb,ub,opts);
     
     
 end
 toc
 
-%%
+%
 
 
 mymeansmo = mean(x1)
@@ -74,7 +82,7 @@ myvarmo = var(x1)
 myvarbi = var(x2)
 
 %%
-randplot = 500;
+randplot = 900;
 figure
 %for ii = 1:1000
 scatter(t,outmono(randplot,:,:),'ko')
@@ -105,14 +113,8 @@ legend([{'Mono Data'},{'Bi Data'},{'Mono Fit'},{'Bi Fit'}])
 
 
 
-%%
 
 
-% yfittedbi = x2(1).*exp(-t/T2short)+(1-x2(2)).*exp(-t/T2long +x2(3));
-% 
-% figure, scatter(t,y)
-% hold on
-% plot(t,yfittedbi)
 
 
 
