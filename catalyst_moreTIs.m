@@ -4,7 +4,7 @@
 mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_19_Jul_2021/';
 
 
-mymask = 'maskbin.nii.gz';
+mymask = 'maskbin2.nii.gz';
 
 
 mmask = MRIread([mypath mymask]);
@@ -15,9 +15,9 @@ mmask = MRIread([mypath mymask]);
 % 750 1000 2000 2500
 
 t1000 = MRIread([mypath '7split_aslpp/diffav.nii.gz']);
-t2000 = MRIread([mypath '8split_aslpp/diffav.nii.gz']);
-t3000 = MRIread([mypath '10split_aslpp/diffav.nii.gz']);
-t4000 = MRIread([mypath '11split_aslpp/diffav.nii.gz']);
+t2000 = MRIread([mypath '9split_aslpp/diffav.nii.gz']);
+t3000 = MRIread([mypath '8split_aslpp/diffav.nii.gz']);
+t4000 = MRIread([mypath '10split_aslpp/diffav.nii.gz']);
 
 m1000 = t1000.vol(:);
 m2000 = t2000.vol(:);
