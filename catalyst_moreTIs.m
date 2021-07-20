@@ -5,9 +5,10 @@ mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_19_Jul_2021/';
 
 
 mymask = 'maskbin2.nii.gz';
-
+mycsf = 'maskbinnocp.nii.gz';
 
 mmask = MRIread([mypath mymask]);
+mcsf = MRIread([mypath mycsf]);
 
 
 % FAIR 
@@ -28,6 +29,10 @@ m4000 = t4000.vol(:);
 them = mmask.vol(:);
 [I,J]=ind2sub(size(m1000),find(them==1));
 
+themCSF = mcsf.vol(:);
+[Ic,Jc]=ind2sub(size(m1000),find(themCSF==1));
+
+
 % CP mask
 m1000_masked = m1000(I);
 m2000_masked = m2000(I);
@@ -39,7 +44,19 @@ m2000mn = mean(m2000_masked);
 m3000mn = mean(m3000_masked);
 m4000mn = mean(m4000_masked);
 
+% csf mask
+m1000_maskedc = m1000(Ic);
+m2000_maskedc = m2000(Ic);
+m3000_maskedc = m3000(Ic);
+m4000_maskedc = m4000(Ic);
+
+m1000csf = mean(m1000_maskedc);
+m2000csf = mean(m2000_maskedc);
+m3000csf= mean(m3000_maskedc);
+m4000csf = mean(m4000_maskedc);
+
 pix = [m1000mn;m2000mn;m3000mn;m4000mn];
+pixcsf = [m1000csf;m2000csf;m3000csf;m4000csf];
 TIs = [1000;2000;3000;4000];
 
 figure
@@ -48,7 +65,7 @@ xlabel('TI (ms)')
 ylabel('M (au)')
 hold on
 plot(TIs, pixcsf,'linewidth',2)
-legend([{'CSF CP'}])
+legend([{'CSF CP'},{'CSF no CP'}])
 %ylim([-100 200])
 
 
