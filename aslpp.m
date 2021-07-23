@@ -59,7 +59,7 @@ val_MC = [0 1];
 che_MC = @(x) ismember(x, val_MC);
 
 % FSL MOTION OUTLIERS VALIDATION
-def_FSLMO = 0; % Turn motion correction on/off: 1 = on, 0 = off.
+def_FSLMO = 1; % Turn motion correction on/off: 1 = on, 0 = off.
 val_FSLMO = [0 1];
 che_FSLMO = @(x) ismember(x, val_FSLMO);
 

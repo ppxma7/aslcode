@@ -4,10 +4,19 @@
 mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_05_Jul_2021/';
 
 
-mymask = 'maskbin.nii.gz';
+%mymask = 'maskbin.nii.gz';
+
+
+mymaskR = 'maskbinRIGHT.nii.gz';
+mymaskL = 'maskbinLEFT.nii.gz';
+
 mycsf = 'maskbincsf.nii.gz';
 
-mmask = MRIread([mypath mymask]);
+%mmask = MRIread([mypath mymask]);
+
+mmaskR = MRIread([mypath mymaskR]);
+mmaskL = MRIread([mypath mymaskL]);
+
 mcsf = MRIread([mypath mycsf]);
 
 
@@ -15,7 +24,7 @@ mcsf = MRIread([mypath mycsf]);
 % 15 16 17 18
 % 750 1000 2000 2500
 
-t0750 = MRIread([mypath '15spl_aslpp/diffav.nii.gz']);
+t0750 = MRIread([mypath '15spl_aslpp_MOCO/diffav.nii.gz']);
 t1000 = MRIread([mypath '16spl_aslpp/diffav.nii.gz']);
 t2000 = MRIread([mypath '17spl_aslpp/diffav.nii.gz']);
 t2500 = MRIread([mypath '18spl_aslpp/diffav.nii.gz']);
@@ -26,22 +35,48 @@ m2000 = t2000.vol(:);
 m2500 = t2500.vol(:);
 
 % find the mask voxels
-them = mmask.vol(:);
-[I,J]=ind2sub(size(m0750),find(them==1));
+% find the mask voxels
+them = mmaskR.vol(:);
+[IR,JR]=ind2sub(size(m1000),find(them==1));
+
+themL = mmaskL.vol(:);
+[IL,JL]=ind2sub(size(m1000),find(themL==1));
+% them = mmask.vol(:);
+% [I,J]=ind2sub(size(m0750),find(them==1));
 
 themCSF = mcsf.vol(:);
 [Ic,Jc]=ind2sub(size(m0750),find(themCSF==1));
 
 % CP mask
-m0750_masked = m0750(I);
-m1000_masked = m1000(I);
-m2000_masked = m2000(I);
-m2500_masked = m2500(I);
+m0750_masked = m0750(IR);
+m1000_masked = m1000(IR);
+m2000_masked = m2000(IR);
+m2500_masked = m2500(IR);
+% CP mask left
+m0750_maskedL = m0750(IL);
+m1000_maskedL = m1000(IL);
+m2000_maskedL = m2000(IL);
+m2500_maskedL = m2500(IL);
 
-m0750mn = mean(m0750_masked);
-m1000mn = mean(m1000_masked);
-m2000mn = mean(m2000_masked);
-m2500mn = mean(m2500_masked);
+m0750mn = mean(nonzeros(m0750_masked));
+m1000mn = mean(nonzeros(m1000_masked));
+m2000mn = mean(nonzeros(m2000_masked));
+m2500mn = mean(nonzeros(m2500_masked));
+
+m0750mnL = mean(nonzeros(m0750_maskedL));
+m1000mnL = mean(nonzeros(m1000_maskedL));
+m2000mnL = mean(nonzeros(m2000_maskedL));
+m2500mnL = mean(nonzeros(m2500_maskedL));
+    
+% m0750_masked = m0750(I);
+% m1000_masked = m1000(I);
+% m2000_masked = m2000(I);
+% m2500_masked = m2500(I);
+% 
+% m0750mn = mean(m0750_masked);
+% m1000mn = mean(m1000_masked);
+% m2000mn = mean(m2000_masked);
+% m2500mn = mean(m2500_masked);
 
 % csf mask
 m0750_maskedc = m0750(Ic);
@@ -49,29 +84,33 @@ m1000_maskedc = m1000(Ic);
 m2000_maskedc = m2000(Ic);
 m2500_maskedc = m2500(Ic);
 
-m0750csf = mean(m0750_maskedc);
-m1000csf = mean(m1000_maskedc);
-m2000csf= mean(m2000_maskedc);
-m2500csf = mean(m2500_maskedc);
+m0750csf = mean(nonzeros(m0750_maskedc));
+m1000csf = mean(nonzeros(m1000_maskedc));
+m2000csf= mean(nonzeros(m2000_maskedc));
+m2500csf = mean(nonzeros(m2500_maskedc));
 
-pix = [m0750mn;m1000mn;m2000mn;m2500mn];
+%pix = [m0750mn;m1000mn;m2000mn;m2500mn];
+
+
+pixR = [m0750mn;m1000mn;m2000mn;m2500mn];
+pixL = [m0750mnL;m1000mnL;m2000mnL;m2500mnL];
 pixcsf = [m0750csf;m1000csf;m2000csf;m2500csf];
 TIs = [750;1000;2000;2500];
 
 figure
-plot(TIs,pix,'linewidth',2)
+plot(TIs,pixR,'linewidth',2)
 xlabel('TI (ms)')
 ylabel('M (au)')
 hold on
-plot(TIs, pixcsf,'linewidth',2)
-legend([{'CSF CP'},{'CSF no CP'}])
-ylim([-100 200])
+plot(TIs, pixL,'linewidth',2)
+plot(TIs,pixcsf,'linewidth',2)
+legend([{'CSF Right'},{'CSF Left'},{'CSF no CP'}])
 
 
 %%
 
 t = TIs;
-y = pix;
+y = pixR;
 
 opts = optimoptions('lsqcurvefit','Display','off');
 
@@ -164,12 +203,19 @@ IV_fraction = dMiv ./ (dMiv + dMev);
 
 
 %% fitting
-F3 = @(x,xdata) dMiv.*exp(-x(1)/xdata)+dMev.*exp(-x(2)/xdata) +x(3); % BIEXP
+
+%F2 = @(x,xdata) x(1).*exp(-xdata/x(2))+(1-x(1)).*exp(-xdata/x(3)) +x(4); % BIEXP
+
+
+%F3 = @(x,xdata) dMiv.*exp(-xdata/x(1))+(1-dMev).*exp(-xdata/x(2)) +x(3); % BIEXP
+
+F3 = @(x,data) x(1).*exp(-dMiv/x(2))+x(3).*exp(-dMev/x(4)) + x(5);
 % F3b = @(x,xdata) dMiv(2).*exp(-xdata/x(1))+dMev(2).*exp(-xdata/x(2)) +x(3); % BIEXP
 % F3c = @(x,xdata) dMiv(3).*exp(-xdata/x(1))+dMev(3).*exp(-xdata/x(2)) +x(3); % BIEXP
 % F3d = @(x,xdata) dMiv(4).*exp(-xdata/x(1))+dMev(4).*exp(-xdata/x(2)) +x(3); % BIEXP
 
-x03 = [30 400 0.1];
+%x03 = [30 400 0.1];
+x03 = [1 1 1 1 0.5];
 [x3,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3,x03,t,y,[],[],opts);
 % [x3b,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3b,x03,t,y,[],[],opts);
 % [x3c,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3c,x03,t,y,[],[],opts);
