@@ -12,6 +12,7 @@
 
 # example usage
 # sh /Users/ppzma/Documents/MATLAB/nottingham/bin/splitnmerge.sh . infile outfilename 0 30 30 basefile
+# 0 31 31 if you have a noise scan
 
 if [ $# -lt 6 ] ; then
      echo 

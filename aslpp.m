@@ -91,7 +91,7 @@ def_MCInit = [functions_path, filesep, 'I.mat']; % Filename of initial transform
 def_MCDiscardThreshold = inf; % Discard repeat with translation greater than threshold (mm). Set to inf to turn off.
 
 % BRAIN EXTRACT LABEL VALIDATION
-def_BETLabel = 1; % Turn on/off brain extraction on labels: 1 = on, 0 = off.
+def_BETLabel = 0; % Turn on/off brain extraction on labels: 1 = on, 0 = off.
 val_BETLabel = [0 1];
 che_BETLabel = @(x) ismember(x, val_BETLabel);
 
@@ -101,7 +101,7 @@ def_BETLabelf = 0.2; % Fractional intensity threshold of label brain extraction 
 che_BETLabelf = @(x) x>=0 & x<=1;
 
 % BRAIN EXTRACT LABEL VGFIT VALIDATION
-def_BETLabelg = 0.2; % Vertical gradient in fractional intensity threshold (-1 to 1).
+def_BETLabelg = 0.2; % Vertical gradient in fractional intensity threshold (-1 to 1). 0.2
 che_BETLabelg = @(x) x>=-1 & x<=1;
 
 % BRAIN EXTRACT M0 VALIDATION

@@ -1,23 +1,23 @@
 #!/bin/bash
 
 
-anatlist="03315"
+anatlist="sub01"
 
-subjectlist="03315_2021_05_05"
+subjectlist="220126_GBPERM_01_v1"
 
 
 #MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"
-MOUNT="/Volumes/nemosine/CATALYST_BCSFB/ASL/"
+MOUNT="/Volumes/nemosine/CATALYST_BCSFB/"
 #MOUNT="/Volumes/ares/data/IBD/ASL/ASL_jord/"
 
-ANATMOUNT="/Volumes/nemosine/CATALYST_BCSFB/ANATOMY/"
+ANATMOUNT="/Volumes/nemosine/CATALYST_BCSFB/GBPERM_subs/"
 
-#First, we should align all anatomicals to MNI SPACE
+####First, we should align all anatomicals to MNI SPACE
 # for anatsub in $anatlist
 # do
 # 	echo ${anatsub}.nii
 # 	echo "Running bet..."
-# 	bet ${ANATMOUNT}/${anatsub}/m${anatsub}.nii ${ANATMOUNT}/${anatsub}/${anatsub}_brain\
+# 	bet ${ANATMOUNT}/${anatsub}/${anatsub}_mprage.nii ${ANATMOUNT}/${anatsub}/${anatsub}_brain\
 # 	   -f 0.2 -g 0
 # 	echo "Running flirt now..."
 # 	flirt -in ${ANATMOUNT}/${anatsub}/${anatsub}_brain.nii.gz\
@@ -84,7 +84,7 @@ do
 					-interp trilinear
 			done
 
-			# apply transformation of EPI to Anatomy space to other images
+			#apply transformation of EPI to Anatomy space to other images
 
 			for file2 in $(find ${MOUNT}/${subject}/ -name 'base_7_8_30ms_merged_toppedup.nii.gz' );
 			do
@@ -148,6 +148,12 @@ do
 					-out $tmpPath2/sc_13_100ms_flirt\
 					-applyxfm -init ${MOUNT}/${subject}/base_7_8_flirt.mat
 			done  
+
+
+
+
+
+
 
 
 			# for file3 in $(find ${MOUNT}/${subject}/ -name 'fair_30ms_label1.nii' );

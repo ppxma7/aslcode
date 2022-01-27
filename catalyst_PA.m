@@ -2,35 +2,38 @@
 
 
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_19_Jul_2021/';
-mypath ='/Volumes/nemosine/CATALYST_BCSFB/020921_catalyst_hi_res_13676/';
+%mypath ='/Volumes/nemosine/CATALYST_BCSFB/020921_catalyst_hi_res_13676/';
+mypath = '/Volumes/nemosine/CATALYST_BCSFB/220126_GBPERM_01_v1/';
 
 
 % mymaskR = 'FLAIRBET_copy_R_cp_thresh.nii.gz';
 % mymaskL = 'FLAIRBET_copy_L_cp_thresh.nii.gz';
 % mycsf = 'FLAIRBET_copy_CSF.nii.gz';
 
-mymaskR = 'FAIR4000_R.nii.gz';
-mymaskL = 'FAIR4000_L.nii.gz';
-mycsf = 'FAIR4000_CSF.nii.gz';
+mymaskR = 'FLAIRBET_R_mask.nii.gz';
+mymaskL = 'FLAIRBET_L_mask.nii.gz';
+mycsfR = 'FLAIRBET_R_CSF_mask.nii.gz';
+mycsfL = 'FLAIRBET_L_CSF_mask.nii.gz';
 
-mmaskR = MRIread([mypath 'nordic/magnitude/NORDIC/' mymaskR]);
-mmaskL = MRIread([mypath 'nordic/magnitude/NORDIC/' mymaskL]);
-mcsf = MRIread([mypath 'nordic/magnitude/NORDIC/' mycsf]);
+mmaskR = MRIread([mypath 'structurals/' mymaskR]);
+mmaskL = MRIread([mypath 'structurals/' mymaskL]);
+mcsfR = MRIread([mypath 'structurals/' mycsfR]);
+mcsfL = MRIread([mypath 'structurals/' mycsfL]);
 
 
 % FAIR
 % 15 16 17 18
 % 750 1000 2000 2500
-% 
+%
 % t1000 = MRIread([mypath 'topuplabels_usingbase/7split_aslpp/diffav.nii.gz']);
 % t2000 = MRIread([mypath 'topuplabels_usingbase/9split_aslpp/diffav.nii.gz']);
 % t3000 = MRIread([mypath 'topuplabels_usingbase/8split_aslpp/diffav.nii.gz']);
 % t4000 = MRIread([mypath 'topuplabels_usingbase/10split_aslpp/diffav.nii.gz']);
 
-t1000 = MRIread([mypath 'nordic/magnitude/NORDIC/020921_FAIR_1000_400ms_aslpp/diffav.nii.gz']);
-t2000 = MRIread([mypath 'nordic/magnitude/NORDIC/020921_FAIR_2000_400ms_aslpp/diffav.nii.gz']);
-t3000 = MRIread([mypath 'nordic/magnitude/NORDIC/020921_FAIR_3000_400ms_aslpp/diffav.nii.gz']);
-t4000 = MRIread([mypath 'nordic/magnitude/NORDIC/020921_FAIR_4000_400ms_aslpp/diffav.nii.gz']);
+t1000 = MRIread([mypath 'FAIR1000_aslpp/diffav.nii.gz']);
+t2000 = MRIread([mypath 'FAIR2000_aslpp/diffav.nii.gz']);
+t3000 = MRIread([mypath 'FAIR3000_aslpp/diffav.nii.gz']);
+t4000 = MRIread([mypath 'FAIR4000_aslpp/diffav.nii.gz']);
 % base400 = MRIread([mypath 'nordic/magnitude/NORDIC/BASE400_nordic_crop_toppedup_cleave.nii.gz']);
 
 % t1000 = MRIread([mypath '020921_FAIR_1000_400ms_toppedup_aslpp/diffav.nii.gz']);
@@ -52,8 +55,11 @@ them = mmaskR.vol(:);
 themL = mmaskL.vol(:);
 [IL,JL]=ind2sub(size(m1000),find(themL==1));
 
-themCSF = mcsf.vol(:);
-[Ic,Jc]=ind2sub(size(m1000),find(themCSF==1));
+themCSFL = mcsfL.vol(:);
+[Icl,Jcl]=ind2sub(size(m1000),find(themCSFL==1));
+
+themCSFR = mcsfR.vol(:);
+[Icr,Jcr]=ind2sub(size(m1000),find(themCSFR==1));
 
 
 % figure
@@ -77,11 +83,15 @@ m2000_maskedL = m2000(IL);
 m3000_maskedL = m3000(IL);
 m4000_maskedL = m4000(IL);
 % csf mask
-m1000_maskedc = m1000(Ic);
-m2000_maskedc = m2000(Ic);
-m3000_maskedc = m3000(Ic);
-m4000_maskedc = m4000(Ic);
+m1000_maskedcl = m1000(Icl);
+m2000_maskedcl = m2000(Icl);
+m3000_maskedcl = m3000(Icl);
+m4000_maskedcl = m4000(Icl);
 
+m1000_maskedcr = m1000(Icr);
+m2000_maskedcr = m2000(Icr);
+m3000_maskedcr = m3000(Icr);
+m4000_maskedcr = m4000(Icr);
 
 
 %% normalise
@@ -101,10 +111,15 @@ m2000_maskedL = normalize(m2000_maskedL,method);
 m3000_maskedL = normalize(m3000_maskedL,method);
 m4000_maskedL = normalize(m4000_maskedL,method);
 
-m1000_maskedc = normalize(m1000_maskedc,method);
-m2000_maskedc = normalize(m2000_maskedc,method);
-m3000_maskedc = normalize(m3000_maskedc,method);
-m4000_maskedc = normalize(m4000_maskedc,method);
+m1000_maskedcl = normalize(m1000_maskedcl,method);
+m2000_maskedcl = normalize(m2000_maskedcl,method);
+m3000_maskedcl = normalize(m3000_maskedcl,method);
+m4000_maskedcl = normalize(m4000_maskedcl,method);
+
+m1000_maskedcr = normalize(m1000_maskedcr,method);
+m2000_maskedcr = normalize(m2000_maskedcr,method);
+m3000_maskedcr = normalize(m3000_maskedcr,method);
+m4000_maskedcr = normalize(m4000_maskedcr,method);
 
 %%
 
@@ -122,11 +137,16 @@ if domode ~= 1
     m4000mnL = mean(nonzeros(m4000_maskedL));
     
     
-    m1000csf = mean(nonzeros(m1000_maskedc));
-    m2000csf = mean(nonzeros(m2000_maskedc));
-    m3000csf = mean(nonzeros(m3000_maskedc));
-    m4000csf = mean(nonzeros(m4000_maskedc));
-
+    m1000csfl = mean(nonzeros(m1000_maskedcl));
+    m2000csfl = mean(nonzeros(m2000_maskedcl));
+    m3000csfl = mean(nonzeros(m3000_maskedcl));
+    m4000csfl = mean(nonzeros(m4000_maskedcl));
+    
+    m1000csfr = mean(nonzeros(m1000_maskedcr));
+    m2000csfr = mean(nonzeros(m2000_maskedcr));
+    m3000csfr = mean(nonzeros(m3000_maskedcr));
+    m4000csfr = mean(nonzeros(m4000_maskedcr));
+    
 else %do mode
     
     m1000mn = mode(nonzeros(m1000_masked));
@@ -139,10 +159,15 @@ else %do mode
     m3000mnL = mode(nonzeros(m3000_maskedL));
     m4000mnL = mode(nonzeros(m4000_maskedL));
     
-    m1000csf = mode(nonzeros(m1000_maskedc));
-    m2000csf = mode(nonzeros(m2000_maskedc));
-    m3000csf= mode(nonzeros(m3000_maskedc));
-    m4000csf = mode(nonzeros(m4000_maskedc));
+    m1000csfl = mode(nonzeros(m1000_maskedcl));
+    m2000csfl = mode(nonzeros(m2000_maskedcl));
+    m3000csfl= mode(nonzeros(m3000_maskedcl));
+    m4000csfl = mode(nonzeros(m4000_maskedcl));
+    
+    m1000csfr = mode(nonzeros(m1000_maskedcr));
+    m2000csfr = mode(nonzeros(m2000_maskedcr));
+    m3000csfr= mode(nonzeros(m3000_maskedcr));
+    m4000csfr = mode(nonzeros(m4000_maskedcr));
 end
 
 
@@ -150,7 +175,8 @@ end
 
 pixR = [m1000mn;m2000mn;m3000mn;m4000mn];
 pixL = [m1000mnL;m2000mnL;m3000mnL;m4000mnL];
-pixcsf = [m1000csf;m2000csf;m3000csf;m4000csf];
+pixcsfl = [m1000csfl;m2000csfl;m3000csfl;m4000csfl];
+pixcsfr = [m1000csfr;m2000csfr;m3000csfr;m4000csfr];
 TIs = [1000;2000;3000;4000];
 
 figure
@@ -159,46 +185,63 @@ xlabel('TI (ms)')
 ylabel('M (au)')
 hold on
 plot(TIs, pixL,'linewidth',2)
-plot(TIs,pixcsf,'linewidth',2)
-legend([{'CP Right'},{'CP Left'},{'CSF'}])
+plot(TIs,pixcsfl,'linewidth',2)
+plot(TIs,pixcsfr,'linewidth',2)
+
+legend([{'CP Right'},{'CP Left'},{'CSF Left'},{'CSF Right'}],'Location','southwest','NumColumns',2)
+
 
 %ylim([-100 200])
 
 t = TIs;
 y = pixR;
 y2 = pixL;
-y3 = pixcsf;
+y3 = pixcsfl;
+y4 = pixcsfr;
+
+print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/norm_range.pdf')
+
 
 %% histogram
 EDGES = 36;
 figure('Position',[100 100 1000 800])
-subplot(3,4,1)
+tiledlayout(4,4)
+nexttile
 histogram(nonzeros(m1000_masked),EDGES)
-ylabel('RIGHT CP')
-subplot(3,4,2)
+nexttile
 histogram(nonzeros(m2000_masked),EDGES)
-subplot(3,4,3)
+nexttile
 histogram(nonzeros(m3000_masked),EDGES)
-subplot(3,4,4)
+nexttile
 histogram(nonzeros(m4000_masked),EDGES)
-subplot(3,4,5)
+ylabel('RIGHT CP')
+nexttile
 histogram(nonzeros(m1000_maskedL),EDGES)
-ylabel('LEFT CP')
-subplot(3,4,6)
+nexttile
 histogram(nonzeros(m2000_maskedL),EDGES)
-subplot(3,4,7)
+nexttile
 histogram(nonzeros(m3000_maskedL),EDGES)
-subplot(3,4,8)
+nexttile
 histogram(nonzeros(m4000_maskedL),EDGES)
-subplot(3,4,9)
-histogram(nonzeros(m1000_maskedc),EDGES)
-ylabel('CSF')
-subplot(3,4,10)
-histogram(nonzeros(m2000_maskedc),EDGES)
-subplot(3,4,11)
-histogram(nonzeros(m3000_maskedc),EDGES)
-subplot(3,4,12)
-histogram(nonzeros(m4000_maskedc),EDGES)
+ylabel('LEFT CP')
+nexttile
+histogram(nonzeros(m1000_maskedcl),EDGES)
+nexttile
+histogram(nonzeros(m2000_maskedcl),EDGES)
+nexttile
+histogram(nonzeros(m3000_maskedcl),EDGES)
+nexttile
+histogram(nonzeros(m4000_maskedcl),EDGES)
+ylabel('CSFL')
+nexttile
+histogram(nonzeros(m1000_maskedcr),EDGES)
+nexttile
+histogram(nonzeros(m2000_maskedcr),EDGES)
+nexttile
+histogram(nonzeros(m3000_maskedcr),EDGES)
+nexttile
+histogram(nonzeros(m4000_maskedcr),EDGES)
+ylabel('CSFR')
 
 %% First try a bi fit
 
@@ -214,7 +257,7 @@ x02 = [1 40 100 0.05 ];
 
 %[x1,resnorm,~,exitflag,output] = lsqcurvefit(F,x0,t,y,[],[],opts);
 [x2,resnorm2,~,exitflag2,output2] = lsqcurvefit(F2,x02,t,y,[],[],opts);
-   
+
 
 figure
 scatter(t,y,'ko')
@@ -225,6 +268,8 @@ plot(t,F2(x2,t),'-r','Linewidth',2)
 xlabel('TI (ms)')
 ylabel('M')
 legend([{'Data'},{'Bi Fit'}])
+
+
 
 %% try fitting a slightly different equation now
 
@@ -258,12 +303,12 @@ dR = R1app - R1a;
 % T2iv1500 = 14.3;
 % T2ev800 = 37.1;
 % T2ev1500 = 34.5;
-% 
+%
 % T2iv = [T2iv800, T2iv1500];
 % T2ev = [T2ev800, T2ev1500];
 
 
-                      
+
 
 % equation 10
 dMiv = ((2.*Mo.*CBF)./BB_lambda) .*(exp(-theTIs.*R1a).*(min(artTT-theTIs+tau,0)-artTT)-(min(tissueTT-theTIs+tau,0)-tissueTT));
@@ -297,7 +342,8 @@ x03 = [1 1 1 1 0.05 ];
 
 [x3,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3,x03,t,y,[],[],opts);
 [x3L,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3,x03,t,y2,[],[],opts);
-[x3csf,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3,x03,t,y3,[],[],opts);
+[x3csfl,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3,x03,t,y3,[],[],opts);
+[x3csfr,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3,x03,t,y4,[],[],opts);
 
 
 % [x3b,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3b,x03,t,y,[],[],opts);
@@ -308,12 +354,14 @@ figure
 scatter(t,y,'ro')
 hold on
 scatter(t,y2,'bo')
-scatter(t,y3,'ko')
-
+scatter(t,y3,'mo')
+scatter(t,y4,'co')
 
 plot(t,F3(x3,t),'-r','Linewidth',2)
 plot(t,F3(x3L,t),'-b','Linewidth',2)
-plot(t,F3(x3csf,t),'-k','Linewidth',1)
+plot(t,F3(x3csfl,t),'-m','Linewidth',1)
+plot(t,F3(x3csfr,t),'-c','Linewidth',1)
+
 
 % plot(t,F3b(x3b,t),'-k','Linewidth',2)
 % plot(t,F3c(x3c,t),'-k','Linewidth',2)
@@ -321,8 +369,10 @@ plot(t,F3(x3csf,t),'-k','Linewidth',1)
 
 xlabel('TI (ms)')
 ylabel('M')
-legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSF'},{'FitR'},{'FitL'}, {'FitCSF'}])
+%legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSFL'},{'Data CSFR'},{'FitR'},{'FitL'}, {'FitCSFL'}, {'FitCSFR'}])
+legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSFL'},{'Data CSFR'},{'FitR'},{'FitL'}, {'FitCSFL'}, {'FitCSFR'}],'Location','northeast','NumColumns',2)
 
+print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/fit.pdf')
 
 
 
