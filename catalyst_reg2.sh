@@ -1,9 +1,9 @@
 #!/bin/bash
 
 
-anatlist="sub03"
+anatlist="sub06"
 
-subjectlist="220216_GBPERM_03_v1"
+subjectlist="220311_GBPERM_06_v1"
 
 
 #MOUNT="/Volumes/ares/data/IBD/ASL/ASL_gita/Healthy/"

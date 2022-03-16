@@ -4,17 +4,20 @@
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_19_Jul_2021/';
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/020921_catalyst_hi_res_13676/';
 mypath = '/Volumes/nemosine/CATALYST_BCSFB/';
-mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/'};
+mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/',...
+    '220216_GBPERM_03_v1/', '220222_GBPERM_04_v1/',...
+    '220311_GBPERM_06_v1/'};
+%mysubs = {'220311_GBPERM_06_v1/'};
 
 
 % mymaskR = 'FLAIRBET_copy_R_cp_thresh.nii.gz';
 % mymaskL = 'FLAIRBET_copy_L_cp_thresh.nii.gz';
 % mycsf = 'FLAIRBET_copy_CSF.nii.gz';
 
-mymaskR = 'FLAIRBET_R_mask.nii.gz';
-mymaskL = 'FLAIRBET_L_mask.nii.gz';
-mycsfR = 'FLAIRBET_R_CSF_mask.nii.gz';
-mycsfL = 'FLAIRBET_L_CSF_mask.nii.gz';
+mymaskR = 'right_roi_mask.nii.gz';
+mymaskL = 'left_roi_mask.nii.gz';
+mycsfR = 'rightcsf_roi_mask.nii.gz';
+mycsfL = 'leftcsf_roi_mask.nii.gz';
 
 for ii = 1:length(mysubs)
     
