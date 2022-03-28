@@ -41,61 +41,111 @@ ANATMOUNT="/Volumes/nemosine/subs/"
 # done
 
 
-for file in $(find ${MOUNT}/ -name 'D1xMPR.hdr' );
+
+## This does the ROIs
+# for file in $(find ${MOUNT}/ -name 'D1xMPR.hdr' );
+# do
+# 	# now apply transform to move EPI to MNI space
+# 	echo "Align EPI to standard using Anatomical transformation..."
+# 	tmpPath=$(dirname $file)
+# 	flirt -in $file\
+# 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+# 		-out $tmpPath/D1xMPR_mni\
+# 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
+# done
+
+# for file in $(find ${MOUNT}/ -name 'D2xMPR.hdr' );
+# do
+# 	# now apply transform to move EPI to MNI space
+# 	echo "Align EPI to standard using Anatomical transformation..."
+# 	tmpPath=$(dirname $file)
+# 	flirt -in $file\
+# 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+# 		-out $tmpPath/D2xMPR_mni\
+# 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
+# done
+
+# for file in $(find ${MOUNT}/ -name 'D3xMPR.hdr' );
+# do
+# 	# now apply transform to move EPI to MNI space
+# 	echo "Align EPI to standard using Anatomical transformation..."
+# 	tmpPath=$(dirname $file)
+# 	flirt -in $file\
+# 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+# 		-out $tmpPath/D3xMPR_mni\
+# 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
+# done
+
+# for file in $(find ${MOUNT}/ -name 'D4xMPR.hdr' );
+# do
+# 	# now apply transform to move EPI to MNI space
+# 	echo "Align EPI to standard using Anatomical transformation..."
+# 	tmpPath=$(dirname $file)
+# 	flirt -in $file\
+# 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+# 		-out $tmpPath/D4xMPR_mni\
+# 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
+# done
+
+# for file in $(find ${MOUNT}/ -name 'D5xMPR.hdr' );
+# do
+# 	# now apply transform to move EPI to MNI space
+# 	echo "Align EPI to standard using Anatomical transformation..."
+# 	tmpPath=$(dirname $file)
+# 	flirt -in $file\
+# 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
+# 		-out $tmpPath/D5xMPR_mni\
+# 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
+# done
+
+
+## now for BRODMANN AREAS
+## remember these need to be converted from Labels using convertlabel2vol.sh
+## already in MPRAGE space out of Freesurfer so no need to muck about.
+
+for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA3a_exvivo.label.volume.nii' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
 	tmpPath=$(dirname $file)
 	flirt -in $file\
 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
-		-out $tmpPath/D1xMPR_mni\
+		-out $tmpPath/BA3a_mni\
 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
 done
 
-for file in $(find ${MOUNT}/ -name 'D2xMPR.hdr' );
+for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA3b_exvivo.label.volume.nii' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
 	tmpPath=$(dirname $file)
 	flirt -in $file\
 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
-		-out $tmpPath/D2xMPR_mni\
+		-out $tmpPath/BA3b_mni\
 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
 done
 
-for file in $(find ${MOUNT}/ -name 'D3xMPR.hdr' );
+for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA1_exvivo.label.volume.nii' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
 	tmpPath=$(dirname $file)
 	flirt -in $file\
 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
-		-out $tmpPath/D3xMPR_mni\
+		-out $tmpPath/BA1_mni\
 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
 done
 
-for file in $(find ${MOUNT}/ -name 'D4xMPR.hdr' );
+for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA2_exvivo.label.volume.nii' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
 	tmpPath=$(dirname $file)
 	flirt -in $file\
 		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
-		-out $tmpPath/D4xMPR_mni\
+		-out $tmpPath/BA2_mni\
 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
 done
-
-for file in $(find ${MOUNT}/ -name 'D5xMPR.hdr' );
-do
-	# now apply transform to move EPI to MNI space
-	echo "Align EPI to standard using Anatomical transformation..."
-	tmpPath=$(dirname $file)
-	flirt -in $file\
-		-ref /usr/local/fsl/data/standard/MNI152_T1_2mm_brain\
-		-out $tmpPath/D5xMPR_mni\
-		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
-done
-
 
 
 
