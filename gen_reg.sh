@@ -103,7 +103,9 @@ ANATMOUNT="/Volumes/nemosine/subs/"
 ## remember these need to be converted from Labels using convertlabel2vol.sh
 ## already in MPRAGE space out of Freesurfer so no need to muck about.
 
-for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA3a_exvivo.label.volume.nii' );
+
+
+for file in $(find ${MOUNT}/ -name 'BA3a_MPR.hdr' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
@@ -114,7 +116,7 @@ do
 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
 done
 
-for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA3b_exvivo.label.volume.nii' );
+for file in $(find ${MOUNT}/ -name 'BA3b_MPR.hdr' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
@@ -125,7 +127,7 @@ do
 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
 done
 
-for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA1_exvivo.label.volume.nii' );
+for file in $(find ${MOUNT}/ -name 'BA1_MPR.hdr' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
@@ -136,7 +138,7 @@ do
 		-applyxfm -init ${ANATMOUNT}/${anatlist}/${anatlist}_brain_mni.mat
 done
 
-for file in $(find ${ANATMOUNT}/${anatlist}/label/ -name 'lh.BA2_exvivo.label.volume.nii' );
+for file in $(find ${MOUNT}/ -name 'BA2_MPR.hdr' );
 do
 	# now apply transform to move EPI to MNI space
 	echo "Align EPI to standard using Anatomical transformation..."
