@@ -1,8 +1,8 @@
 #! /bin/bash
 
 mypath="/Volumes/nemosine/CATALYST_BCSFB/"
-mysub="sub08"
-mydata="220408_GBPERM_08_v1/topup/"
+mysub="sub09"
+mydata="220518_GBPERM_09_v1/topup/"
 
 cd ${mypath}${mydata}/
 
