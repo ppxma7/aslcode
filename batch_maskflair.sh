@@ -2,7 +2,7 @@
 
 mypath="/Volumes/nemosine/CATALYST_BCSFB/"
 mysub="sub09"
-mydata="220518_GBPERM_09_v1/structurals/"
+mydata="220530_GBPERM_10_v1/structurals/"
 
 fslmaths ${mypath}${mydata}/left.nii.gz -uthr 2 ${mypath}${mydata}/left2.nii.gz
 fslmaths ${mypath}${mydata}/left2.nii.gz -thr 1 ${mypath}${mydata}/left_roi_m.nii.gz

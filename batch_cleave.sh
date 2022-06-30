@@ -1,8 +1,8 @@
 #! /bin/bash
 
 mypath="/Volumes/nemosine/CATALYST_BCSFB/"
-mysub="sub09"
-mydata="220518_GBPERM_09_v1/topup/"
+mysub="sub10"
+mydata="220530_GBPERM_10_v1/topup/"
 
 echo "cleaving the noise scan"
 
