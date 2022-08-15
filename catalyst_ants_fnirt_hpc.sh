@@ -8,12 +8,12 @@
 echo "Running on `hostname`"
 #module load ants-uon/binary/2.1.0
 module load ants-uoneasy/2.3.5-foss-2021a
-export SUBJECTS_DIR=/home/ppzma/subjects_dir/
-export DATA_DIR=/home/ppzma/gbperm01/
-export FAIR_DIR1=/home/ppzma/gbperm01/FAIR1000_aslpp/
-export FAIR_DIR2=/home/ppzma/gbperm01/FAIR2000_aslpp/
-export FAIR_DIR3=/home/ppzma/gbperm01/FAIR3000_aslpp/
-export FAIR_DIR4=/home/ppzma/gbperm01/FAIR4000_aslpp/
+export SUBJECTS_DIR=/gpfs01/home/ppzma/subjects_dir/
+export DATA_DIR=/gpfs01/home/ppzma/gbperm01/
+export FAIR_DIR1=/FAIR1000_aslpp/
+export FAIR_DIR2=/FAIR2000_aslpp/
+export FAIR_DIR3=/FAIR3000_aslpp/
+export FAIR_DIR4=/FAIR4000_aslpp/
 
 echo "Now running ${FAIR_DIR1}"
 subjectlist="10"
