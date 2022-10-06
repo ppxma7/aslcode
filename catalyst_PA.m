@@ -10,17 +10,17 @@ mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/',...
     '220408_GBPERM_08_v1/','220518_GBPERM_09_v1/',...
     '220530_GBPERM_10_v1/'};
 
-mysubs = {'220222_GBPERM_04_v1/'};
+mysubs = {'220126_GBPERM_01_v1/'};
 
 
 % mymaskR = 'FLAIRBET_copy_R_cp_thresh.nii.gz';
 % mymaskL = 'FLAIRBET_copy_L_cp_thresh.nii.gz';
 % mycsf = 'FLAIRBET_copy_CSF.nii.gz';
 
-mymaskR = 'right_roi_mask.nii.gz';
-mymaskL = 'left_roi_mask.nii.gz';
-mycsfR = 'rightcsf_roi_mask.nii.gz';
-mycsfL = 'leftcsf_roi_mask.nii.gz';
+mymaskR = 'rright_roi_mask_flo_bin_mask.nii.gz';
+mymaskL = 'rleft_roi_mask_flo_bin_mask.nii.gz';
+mycsfR = 'rrightcsf_roi_mask_flo_bin_mask.nii.gz';
+mycsfL = 'rleftcsf_roi_mask_flo_bin_mask.nii.gz';
 
 for ii = 1:length(mysubs)
     
