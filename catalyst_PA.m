@@ -10,7 +10,7 @@ mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/',...
     '220408_GBPERM_08_v1/','220518_GBPERM_09_v1/',...
     '220530_GBPERM_10_v1/'};
 
-mysubs = {'220126_GBPERM_01_v1/'};
+mysubs = {'220530_GBPERM_10_v1/'};
 
 
 % mymaskR = 'FLAIRBET_copy_R_cp_thresh.nii.gz';
