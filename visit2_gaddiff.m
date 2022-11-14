@@ -5,17 +5,20 @@ clc
 mypath = '/Volumes/nemosine/CATALYST_BCSFB/';
 cd(mypath)
 
-doMP = 1;
+%doMP = 1;
 
-%subs = {'220202_GBPERM_01_v2','220209_GBPERM_02_v2','220323_GBPERM_03_v2',...
-%    '220223_GBPERM_04_v2','220308_GBPERM_06_v2','220414_GBPERM_07_v2',...
-%    '220509_GBPERM_08_v2','220531_GBPERM_09_v2','220531_GBPERM_10_v2'};
+subs = {'220202_GBPERM_01_v2','220209_GBPERM_02_v2','220323_GBPERM_03_v2',...
+    '220223_GBPERM_04_v2','220308_GBPERM_06_v2','220414_GBPERM_07_v2',...
+    '220509_GBPERM_08_v2','220531_GBPERM_09_v2','220531_GBPERM_10_v2'};
 
-subs = {'220509_GBPERM_08_v2'};
+v1subs = {'220126_GBPERM_01_v1','220208_GBPERM_02_v1','220216_GBPERM_03_v1',...
+    '220222_GBPERM_04_v1','220311_GBPERM_06_v1','220407_GBPERM_07_v1',...
+    '220408_GBPERM_08_v1','220518_GBPERM_09_v1','220530_GBPERM_10_v1'};
+%subs = {'220509_GBPERM_08_v2'};
 
-%subnames = {'sub01','sub02','sub03','sub04','sub06','sub07','sub08','sub09','sub10'};
+subnames = {'sub01','sub02','sub03','sub04','sub06','sub07','sub08','sub09','sub10'};
 
-subnames = {'sub08'};
+%subnames = {'sub08'};
 
 datasetsa = {'f_220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_43.nii',...
     'f_220209_GBPERM_02_v2_MPRAGE_850ms_OPTS2_5_20220209125931_42.nii',...
@@ -26,8 +29,6 @@ datasetsa = {'f_220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_43.nii',
     'rmprage45_thr.nii',...
     'f_220531_GBPERM_09_v2_MPRAGE_850ms_OPTS2_5_20220531085651_46.nii',...
     'f_220531_GBPERM_10_v2_MPRAGE_850ms_OPTS2_5_20220531110348_46.nii'};
-
-datasetsa = {'rmprage45_thr.nii'};
 
 
 datasetsb =  {'f_r220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_51.nii',...
@@ -40,8 +41,6 @@ datasetsb =  {'f_r220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_51.nii
     'f_r220531_GBPERM_09_v2_MPRAGE_850ms_OPTS2_5_20220531085651_54.nii',...
     'f_r220531_GBPERM_10_v2_MPRAGE_850ms_OPTS2_5_20220531110348_58.nii'};
 
-datasetsb = {'rmprage52_thr.nii'};
-
 datasetsd = {'f_220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_42.nii',...
     'f_220209_GBPERM_02_v2_IR_TSE_700mm_1mm_OPTS_2_20220209125931_41.nii',...
     'f_GBPERM_03_v2_IR_TSE_700mm_1mm_OPTS_2_20220223121541_44.nii',...
@@ -51,9 +50,6 @@ datasetsd = {'f_220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_42.ni
     'rirtse44.nii',...
     'f_220531_GBPERM_09_v2_IR_TSE_700mm_1mm_OPTS_2_20220531085651_45.nii',...
     'f_220531_GBPERM_10_v2_IR_TSE_700mm_1mm_OPTS_2_20220531110348_45.nii'};
-
-
-datasetsd = {'rirtse44.nii'};
 
 datasetse =  {'f_r220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_50.nii',...
     'f_r220209_GBPERM_02_v2_IR_TSE_700mm_1mm_OPTS_2_20220209125931_49.nii',...
@@ -65,120 +61,216 @@ datasetse =  {'f_r220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_50.
     'f_r220531_GBPERM_09_v2_IR_TSE_700mm_1mm_OPTS_2_20220531085651_53.nii',...
     'f_r220531_GBPERM_10_v2_IR_TSE_700mm_1mm_OPTS_2_20220531110348_54.nii'};
 
-datasetse = {'rirtse53.nii'};
+
+% ppt stuff
+
+import mlreportgen.ppt.*;
+ppt_path = '/Users/ppzma/Library/CloudStorage/OneDrive-SharedLibraries-TheUniversityofNottingham/Michael_Sue - Catalyst/visit2_ppts/';
+cd(ppt_path)
+ppt = Presentation('V2maps.pptx'); %ppt_path,
+open(ppt);
+slide1 = add(ppt,'Title Slide');
+replace(slide1,'Title','V2 Gad');
+replace(slide1,'Subtitle','Michael Asghar');
+
+spacing = 2; % for tight_tile()
+
 
 
 tic
 for ii = 1:length(subs)
     disp([subnames{ii}]);
     
-    if doMP
-        mp1 = [mypath subs{ii} '/analysis/' datasetsa{ii}];
-        mp2 = [mypath subs{ii} '/analysis/' datasetsb{ii}];
-        
-    else
-        mp1 = [mypath subs{ii} '/analysis/' datasetsd{ii}];
-        mp2 = [mypath subs{ii} '/analysis/' datasetse{ii}];
-        
-    end
+    
+    mp1 = [mypath subs{ii} '/analysis/' datasetsa{ii}];
+    mp2 = [mypath subs{ii} '/analysis/' datasetsb{ii}];
+   
     
     V_MP1 = load_untouch_nii(mp1);
     V_MP2 = load_untouch_nii(mp2);
     
     img_data_vmp1 = double(V_MP1.img);
     img_data_vmp2 = double(V_MP2.img);
+
+    v1name = extractBefore(datasetsa{ii},'.');
+    v2name = extractBefore(datasetsb{ii},'.');
+
     
-    mygz = 4;
-    k=length(mp1);
-    fname = mp1(1:k-mygz);
+    close all
+    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60]);
+    v1_fig = [ppt_path subnames{ii} '/', v1name,'_tiled.png'];
+    saveas(gcf,v1_fig)
+    
+    
+    tight_tile(img_data_vmp2,'gray',0,250,1,[50:60]);
+    v2_fig = [ppt_path subnames{ii} '/', v2name,'_tiled.png'];
+    saveas(gcf,v2_fig)
+    t1fig_position = get(gcf,'position');
     
     img_data_vmp1_vec = img_data_vmp1(:);
-    img_data_vmp2_vec = img_data_vmp2(:);
-    thediff = img_data_vmp2_vec-img_data_vmp1_vec;
+    img_data_vmp1_vec(img_data_vmp1_vec==0) = NaN;
     
-    thediff_range = normalize(thediff,'range');
+    img_data_vmp2_vec = img_data_vmp2(:);
+    img_data_vmp2_vec(img_data_vmp2_vec==0) = NaN;
+    
+    %thediff = (img_data_vmp2_vec-img_data_vmp1_vec ./ img_data_vmp1_vec).*100;
+    thediff = img_data_vmp2_vec-img_data_vmp1_vec;
+    thediff(thediff==0)= NaN;
+    
+    % explicit here for sanity
+    change = thediff./img_data_vmp1_vec;
+    change(change==0)= NaN;
+    prc_change = change.*100;
+    
+    % back to 3D data for tight_tile()
+    thediff_rs = reshape(prc_change,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
+    
+    % extra varargin for loading an overlay
+    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs);
+    diff_fig = [ppt_path subnames{ii} '/mprage_diff_fig_tiled.png'];
+    saveas(gcf,diff_fig)
+    
+    
+    % need a mask of the ROIs
+    
+    maskdata_R = [mypath v1subs{ii} '/structurals/right_roi_mask_flo.nii'];
+    maskdata_L = [mypath v1subs{ii} '/structurals/left_roi_mask_flo.nii'];
+    
+    maskdata_Rx = load_untouch_nii(maskdata_R);
+    maskdata_Lx = load_untouch_nii(maskdata_L);
+    
+    maskdata_Rxy = double(maskdata_Rx.img);
+    maskdata_Lxy = double(maskdata_Lx.img);
+    
+    maskdata_R_name = 'right_mask';
+    maskdata_L_name = 'left_mask';
+    
+    maskdata_Rv = maskdata_Rxy(:);
+    maskdata_Lv = maskdata_Lxy(:);
+    maskdata = maskdata_Rv+maskdata_Lv;
+    maskdata_bin = logical(maskdata);
+    
+    img_v1_bin = img_data_vmp1_vec.*maskdata_bin;
+    img_v2_bin = img_data_vmp2_vec.*maskdata_bin;
+    prc_change_bin = prc_change.*maskdata_bin;
+    
+    a = img_v1_bin(~isnan(img_v1_bin));
+    a0 = a(a~=0);
+    
+    b = img_v2_bin(~isnan(img_v2_bin));
+    b0 = b(b~=0);
+    
+    c = prc_change_bin(~isnan(prc_change_bin));
+    c0 = c(c~=0);
+    
+    
+    % histogram of differences
+    figure('Position',[100 100 1200 500])
+    tiledlayout(1,2)
+    nexttile
+    edges = linspace(0, 500, 10);
+    [v1values, ~] = histcounts(img_v1_bin(img_v1_bin~=0),edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v1values, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    text(100,100,['mode v1 ' num2str(mode(a0))]);
+    hold on
+    [v2values, ~] = histcounts(img_v2_bin(img_v2_bin~=0),edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v2values, 'EdgeColor', [0, 0, 256]./256,'FaceColor', [0, 0, 256]./256, 'FaceAlpha', 0.4);
+    legend('V1','V2','Location','best');
+    ylabel('Count'); xlabel('Intensity (au)');
+    text(100,150,['mode v2 ' num2str(mode(b0))]);   
+    nexttile
+    edges = linspace(-100, 1000, 20);
+    [diffvalues, ~] = histcounts(prc_change_bin(prc_change_bin~=0),edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    ylabel('Count'); xlabel('% change');
+    text(100,10,['mode prc diff ' num2str(mode(c0))]);
+    
+    comp_histogram = [ppt_path subnames{ii} '/hist_tiled.png'];
+    saveas(gcf,comp_histogram)
+    t2fig_position = get(gcf,'position');
+    
+    %thediff_range = normalize(thediff,'range');
     
     %thediff_range = thediff./max(thediff);
-    thediff_range_prc = thediff_range.*100;
+    %thediff_range_prc = thediff_range.*100;
     %histogram(nonzeros(thediff_range_prc))
     
-    aa = size(img_data_vmp1);
-    thediff_range_prc_img = reshape(thediff_range_prc,aa);
-    
+%     aa = size(img_data_vmp1);
+%     thediff_range_prc_img = reshape(thediff_range_prc,aa);
+%     
     % [I,J,K] = ind2sub(aa,thediff_range_prc);
     
     %V_MPX = V_MP1;
     %V_MPX.img = thediff_range_prc_img;
-    if doMP
-        outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_mprage_gaddiff.nii'];    %info_t1 = make_ana(thediff_range_prc_img);
-    else
-        outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_mprage_irtse.nii'];    %info_t1 = make_ana(thediff_range_prc_img);
-    end
+    
+    outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_mprage_gaddiff.nii'];    %info_t1 = make_ana(thediff_range_prc_img);
+    
     
     %save_untouch_nii(info_t1,outfile)
     %V_MPX.fileprefix = outfile;
     
     %save_untouch_nii(V_MPX,outfile);
-    thisguy = make_nii(thediff_range_prc_img);
+    %thisguy = make_nii(thediff_range_prc_img);
+    thisguy = make_nii(thediff_rs);
     thisguy.hdr.hist = V_MP1.hdr.hist;
     save_nii(thisguy,outfile);
     
+    
+    
+    
+    
+    %keyboard
+    
+    %% ir tse
+    
+%     mp1 = [mypath subs{ii} '/analysis/' datasetsd{ii}];
+%     mp2 = [mypath subs{ii} '/analysis/' datasetse{ii}];
+%     
+%     outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_mprage_irtse.nii'];
+    
+
+%% ppt
+%Create Powerpoint Slides for each subject
+    t1map = Picture(v1_fig);
+    t1map.Width = num2str(1.4*t1fig_position(3)); t1map.Height = num2str(1.4*t1fig_position(4));
+    t1map.X = '0'; t1map.Y = '140';
+    pictureSlide = add(ppt,'Title Only');
+    replace(pictureSlide,'Title',[subnames{ii}, ' Visit 1']);
+    add(pictureSlide,t1map);
+    
+
+    t1map_nordic = Picture(v2_fig);
+    t1map_nordic.Width = num2str(1.4*t1fig_position(3)); t1map_nordic.Height = num2str(1.4*t1fig_position(4));
+    t1map_nordic.X = '0'; t1map_nordic.Y = '140';
+    pictureSlide2 = add(ppt,'Title Only');
+    replace(pictureSlide2,'Title',[subnames{ii}, ' Visit 2']);
+    add(pictureSlide2,t1map_nordic);
+    
+
+    t1map_diff = Picture(diff_fig);
+    t1map_diff.Width = num2str(1.4*t1fig_position(3)); t1map_diff.Height = num2str(1.4*t1fig_position(4));
+    t1map_diff.X = '0'; t1map_diff.Y = '140';
+    pictureSlide3 = add(ppt,'Title Only');
+    replace(pictureSlide3,'Title',[subnames{ii}, ' percentage difference']);
+    add(pictureSlide3,t1map_diff);
+    
+    
+    
+    r2map_diff = Picture(comp_histogram);
+    r2map_diff.Width = num2str(t2fig_position(3)); r2map_diff.Height = num2str(t2fig_position(4));
+    r2map_diff.X = '0'; r2map_diff.Y = '140';
+    pictureSlide4 = add(ppt,'Title Only');
+    replace(pictureSlide4,'Title',[subnames{ii}, ' Histograms in CP']);
+    add(pictureSlide4,r2map_diff);
+    
+close(ppt);
+
 end
 disp('done')
 toc
-% mp1 = 'f_220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_43.nii';
-% mp2 = 'f_r220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_51.nii';
-
-% V_MP1 = niftiread(mp1);
-% METADATA_V_MP1 = niftiinfo(mp1);
-% V_MP2 = niftiread(mp2);
-% METADATA_V_MP2 = niftiinfo(mp2);
-
-
-% V_MP1 = load_untouch_nii(mp1);
-% V_MP2 = load_untouch_nii(mp2);
-%
-% img_data_vmp1 = double(V_MP1.img);
-% img_data_vmp2 = double(V_MP2.img);
-%
-% mygz = 4;
-% k=length(mp1);
-% fname = mp1(1:k-mygz);
-%
-% img_data_vmp1_vec = img_data_vmp1(:);
-% img_data_vmp2_vec = img_data_vmp2(:);
-% thediff = img_data_vmp2_vec-img_data_vmp1_vec;
-%
-% thediff_range = normalize(thediff,'range');
-%
-% %thediff_range = thediff./max(thediff);
-% thediff_range_prc = thediff_range.*100;
-% histogram(nonzeros(thediff_range_prc))
-%
-% aa = size(img_data_vmp1);
-% thediff_range_prc_img = reshape(thediff_range_prc,aa);
-%
-% % [I,J,K] = ind2sub(aa,thediff_range_prc);
-%
-% %V_MPX = V_MP1;
-% %V_MPX.img = thediff_range_prc_img;
-% outfile=[mypath, fname, '_gaddiff.nii'];
-% %info_t1 = make_ana(thediff_range_prc_img);
-% %save_untouch_nii(info_t1,outfile)
-% %V_MPX.fileprefix = outfile;
-%
-% %save_untouch_nii(V_MPX,outfile);
-% thisguy = make_nii(thediff_range_prc_img);
-% thisguy.hdr.hist = V_MP1.hdr.hist;
-% save_nii(thisguy,outfile);
-%
-%
-
-
-
-
-
-
 
 
 
