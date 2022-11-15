@@ -1,11 +1,10 @@
-%clear all
-%close all
+clear variables
+close all
 clc
 
 mypath = '/Volumes/nemosine/CATALYST_BCSFB/';
 cd(mypath)
 
-%doMP = 1;
 
 subs = {'220202_GBPERM_01_v2','220209_GBPERM_02_v2','220323_GBPERM_03_v2',...
     '220223_GBPERM_04_v2','220308_GBPERM_06_v2','220414_GBPERM_07_v2',...
@@ -15,6 +14,7 @@ v1subs = {'220126_GBPERM_01_v1','220208_GBPERM_02_v1','220216_GBPERM_03_v1',...
     '220222_GBPERM_04_v1','220311_GBPERM_06_v1','220407_GBPERM_07_v1',...
     '220408_GBPERM_08_v1','220518_GBPERM_09_v1','220530_GBPERM_10_v1'};
 %subs = {'220509_GBPERM_08_v2'};
+%v1subs = {'220408_GBPERM_08_v1'}; 
 
 subnames = {'sub01','sub02','sub03','sub04','sub06','sub07','sub08','sub09','sub10'};
 
@@ -26,10 +26,10 @@ datasetsa = {'f_220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_43.nii',
     'f_GBPERM_04_v2_MPRAGE_850ms_OPTS2_5_20220223100844_45.nii',...
     'f_GBPERM_06_v2_MPRAGE_850ms_OPTS2_5_20220308152457_44.nii',...
     'f_220414_GBPERM_07_v2_MPRAGE_850ms_OPTS2_5_20220414102456_45.nii',...
-    'rmprage45_thr.nii',...
+    'rmprage45.nii',...
     'f_220531_GBPERM_09_v2_MPRAGE_850ms_OPTS2_5_20220531085651_46.nii',...
     'f_220531_GBPERM_10_v2_MPRAGE_850ms_OPTS2_5_20220531110348_46.nii'};
-
+%datasetsa = {'rmprage45_thr.nii'};
 
 datasetsb =  {'f_r220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_51.nii',...
     'f_r220209_GBPERM_02_v2_MPRAGE_850ms_OPTS2_5_20220209125931_50.nii',...
@@ -37,9 +37,10 @@ datasetsb =  {'f_r220202_GBPERM_01_v2_MPRAGE_850ms_OPTS2_5_20220202095131_51.nii
     'f_rGBPERM_04_v2_MPRAGE_850ms_OPTS2_5_20220223100844_53.nii',...
     'f_rGBPERM_06_v2_MPRAGE_850ms_OPTS2_5_20220308152457_53.nii',...
     'f_r220414_GBPERM_07_v2_MPRAGE_850ms_OPTS2_5_20220414102456_54.nii',...
-    'rmprage52_thr.nii',...
+    'rmprage52.nii',...
     'f_r220531_GBPERM_09_v2_MPRAGE_850ms_OPTS2_5_20220531085651_54.nii',...
     'f_r220531_GBPERM_10_v2_MPRAGE_850ms_OPTS2_5_20220531110348_58.nii'};
+%datasetsb = {'rmprage52_thr.nii'};
 
 datasetsd = {'f_220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_42.nii',...
     'f_220209_GBPERM_02_v2_IR_TSE_700mm_1mm_OPTS_2_20220209125931_41.nii',...
@@ -50,6 +51,7 @@ datasetsd = {'f_220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_42.ni
     'rirtse44.nii',...
     'f_220531_GBPERM_09_v2_IR_TSE_700mm_1mm_OPTS_2_20220531085651_45.nii',...
     'f_220531_GBPERM_10_v2_IR_TSE_700mm_1mm_OPTS_2_20220531110348_45.nii'};
+%datasetsd = {'rirtse44.nii'};
 
 datasetse =  {'f_r220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_50.nii',...
     'f_r220209_GBPERM_02_v2_IR_TSE_700mm_1mm_OPTS_2_20220209125931_49.nii',...
@@ -60,6 +62,7 @@ datasetse =  {'f_r220202_GBPERM_01_v2_IR_TSE_700mm_1mm_OPTS_2_20220202095131_50.
     'rirtse53.nii',...
     'f_r220531_GBPERM_09_v2_IR_TSE_700mm_1mm_OPTS_2_20220531085651_53.nii',...
     'f_r220531_GBPERM_10_v2_IR_TSE_700mm_1mm_OPTS_2_20220531110348_54.nii'};
+%datasetse = {'rirtse53.nii'};
 
 
 % ppt stuff
@@ -91,6 +94,11 @@ for ii = 1:length(subs)
     
     img_data_vmp1 = double(V_MP1.img);
     img_data_vmp2 = double(V_MP2.img);
+    
+    if strcmpi(subnames{ii},'sub08')
+        img_data_vmp1 = normalize(img_data_vmp1,'range',[0 350]);
+        img_data_vmp2 = normalize(img_data_vmp2,'range',[0 350]);
+    end
 
     v1name = extractBefore(datasetsa{ii},'.');
     v2name = extractBefore(datasetsb{ii},'.');
@@ -113,26 +121,17 @@ for ii = 1:length(subs)
     img_data_vmp2_vec = img_data_vmp2(:);
     img_data_vmp2_vec(img_data_vmp2_vec==0) = NaN;
     
-    %thediff = (img_data_vmp2_vec-img_data_vmp1_vec ./ img_data_vmp1_vec).*100;
-    thediff = img_data_vmp2_vec-img_data_vmp1_vec;
-    thediff(thediff==0)= NaN;
-    
-    % explicit here for sanity
-    change = thediff./img_data_vmp1_vec;
-    change(change==0)= NaN;
-    prc_change = change.*100;
-    
-    % back to 3D data for tight_tile()
-    thediff_rs = reshape(prc_change,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
-    
-    % extra varargin for loading an overlay
-    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs,[-100 1000]);
-    diff_fig = [ppt_path subnames{ii} '/mprage_diff_fig_tiled.png'];
-    saveas(gcf,diff_fig)
-    
+    %% load masks
+    % instead of a diff, we can divide by a WM mask to get the enhancement
+    % ratio
+    wm_mask = [mypath v1subs{ii} '/structurals/wm/FLAIRBET_seg_1.nii.gz'];
+    wm_mask_x = load_untouch_nii(wm_mask);
+    wm_mask_xy = double(wm_mask_x.img);
+    wm_mask_name = 'WM_mask';
+    wm_mask_v = wm_mask_xy(:);
+    wm_mask_v_bin = logical(wm_mask_v);
     
     % need a mask of the ROIs
-    
     maskdata_R = [mypath v1subs{ii} '/structurals/right_roi_mask_flo.nii'];
     maskdata_L = [mypath v1subs{ii} '/structurals/left_roi_mask_flo.nii'];
     
@@ -150,9 +149,39 @@ for ii = 1:length(subs)
     maskdata = maskdata_Rv+maskdata_Lv;
     maskdata_bin = logical(maskdata);
     
+    %%
+
+    %thediff = (img_data_vmp2_vec-img_data_vmp1_vec ./ img_data_vmp1_vec).*100;
+    thediff = img_data_vmp2_vec-img_data_vmp1_vec;
+    thediff(thediff==0)= NaN;
+    
+    %thediff_enhanced = thediff.*wm_mask_v_bin;
+    %thediff_enhanced(thediff_enhanced==0)= NaN;
+    
+    %enhanceR = thediff./thediff_enhanced;
+    %enhanceR_rs = reshape(enhanceR,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
+    
+    % explicit here for sanity
+    change = thediff./img_data_vmp1_vec;
+    change(change==0)= NaN;
+    prc_change = change.*100;
+    
+    % back to 3D data for tight_tile()
+    thediff_rs = reshape(prc_change,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
+    
+    % extra varargin for loading an overlay
+    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs,[-100 1000]);
+    diff_fig = [ppt_path subnames{ii} '/mprage_diff_fig_tiled.png'];
+    saveas(gcf,diff_fig)
+    
+    
+
+    
     img_v1_bin = img_data_vmp1_vec.*maskdata_bin;
     img_v2_bin = img_data_vmp2_vec.*maskdata_bin;
     prc_change_bin = prc_change.*maskdata_bin;
+    
+    img_v2_bin_wm = img_data_vmp2_vec.*wm_mask_v_bin;
     
     a = img_v1_bin(~isnan(img_v1_bin));
     a0 = a(a~=0);
@@ -163,18 +192,22 @@ for ii = 1:length(subs)
     c = prc_change_bin(~isnan(prc_change_bin));
     c0 = c(c~=0);
     
+    d = img_v2_bin_wm(~isnan(img_v2_bin_wm));
+    d0 = d(d~=0);
+    
+    ER(ii) = max(b0)./mean(d0); %brightest part of CP ./ mean of WM
     
     % histogram of differences
     figure('Position',[100 100 1200 500])
     tiledlayout(1,2)
     nexttile
     edges = linspace(0, 500, 10);
-    [v1values, ~] = histcounts(img_v1_bin(img_v1_bin~=0),edges);
+    [v1values, ~] = histcounts(a0,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, v1values, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
     text(100,100,['mode v1 ' num2str(mode(a0))]);
     hold on
-    [v2values, ~] = histcounts(img_v2_bin(img_v2_bin~=0),edges);
+    [v2values, ~] = histcounts(b0,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, v2values, 'EdgeColor', [0, 0, 256]./256,'FaceColor', [0, 0, 256]./256, 'FaceAlpha', 0.4);
     legend('V1','V2','Location','best');
@@ -182,11 +215,11 @@ for ii = 1:length(subs)
     text(100,150,['mode v2 ' num2str(mode(b0))]);   
     nexttile
     edges = linspace(-100, 1000, 20);
-    [diffvalues, ~] = histcounts(prc_change_bin(prc_change_bin~=0),edges);
+    [diffvalues, ~] = histcounts(c0,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
     ylabel('Count'); xlabel('% change');
-    text(100,10,['mode prc diff ' num2str(mode(c0))]);
+    text(100,10,['mean prc diff ' num2str(mean(c0))]);
     
     comp_histogram = [ppt_path subnames{ii} '/hist_tiled.png'];
     saveas(gcf,comp_histogram)
@@ -319,6 +352,17 @@ for ii = 1:length(subs)
     c0 = c(c~=0);
     
     
+    img_v2_bin_wm = img_data_vmp2_vec.*wm_mask_v_bin;
+
+    d = img_v2_bin_wm(~isnan(img_v2_bin_wm));
+    d0 = d(d~=0);
+    
+    ER_irtse(ii) = max(b0)./mean(d0); %brightest part of CP ./ mean of WM
+    
+    
+    
+    
+    
     % histogram of differences
     figure('Position',[100 100 1200 500])
     tiledlayout(1,2)
@@ -342,7 +386,7 @@ for ii = 1:length(subs)
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
     ylabel('Count'); xlabel('abs diff');
-    text(100,10,['mode prc diff ' num2str(mode(c0))]);
+    text(100,10,['mean diff ' num2str(mean(c0))]);
     
     comp_histogramt = [ppt_path subnames{ii} '/irtse_hist_tiled.png'];
     saveas(gcf,comp_histogramt)
@@ -444,10 +488,27 @@ for ii = 1:length(subs)
     replace(pictureSlide8,'Title',[subnames{ii}, ' irtse Histograms in CP']);
     add(pictureSlide8,ir_hist);
     
+
+
+end
+
     
 close(ppt);
 
-end
+
+% table of ERs
+
+
+
+block = [subnames(:); 'Mean'; 'SE'];
+
+T = table(ER(:),ER_irtse(:),'RowName',subnames(:),'VariableNames',["ER MPRAGE","ER IRTSE"]);
+M = varfun(@mean, T, 'InputVariables',@isnumeric);
+SE = varfun(@(x) std(x,[],1)./sqrt(length(subnames)), T, 'InputVariables',@isnumeric);
+Tx = array2table([table2array(T); table2array(M); table2array(SE)],'RowName',block,'VariableNames',["ER MPRAGE","ER IRTSE"]);
+writetable(Tx,'ER_table2.xlsx','WriteVariableNames',true,'WriteRowNames',true)
+
+
 disp('done')
 toc
 
