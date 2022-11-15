@@ -126,7 +126,7 @@ for ii = 1:length(subs)
     thediff_rs = reshape(prc_change,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
     
     % extra varargin for loading an overlay
-    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs);
+    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs,[-100 1000]);
     diff_fig = [ppt_path subnames{ii} '/mprage_diff_fig_tiled.png'];
     saveas(gcf,diff_fig)
     
@@ -230,41 +230,220 @@ for ii = 1:length(subs)
 %     mp2 = [mypath subs{ii} '/analysis/' datasetse{ii}];
 %     
 %     outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_mprage_irtse.nii'];
+
+
+    mp1 = [mypath subs{ii} '/analysis/' datasetsd{ii}];
+    mp2 = [mypath subs{ii} '/analysis/' datasetse{ii}];
+   
+    
+    V_MP1 = load_untouch_nii(mp1);
+    V_MP2 = load_untouch_nii(mp2);
+    
+    img_data_vmp1 = double(V_MP1.img);
+    img_data_vmp2 = double(V_MP2.img);
+
+    v1name = extractBefore(datasetsd{ii},'.');
+    v2name = extractBefore(datasetse{ii},'.');
+
+    
+    close all
+    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60]);
+    v1_figt = [ppt_path subnames{ii} '/', v1name,'_tiled.png'];
+    saveas(gcf,v1_figt)
+    
+    
+    tight_tile(img_data_vmp2,'gray',0,250,1,[50:60]);
+    v2_figt = [ppt_path subnames{ii} '/', v2name,'_tiled.png'];
+    saveas(gcf,v2_figt)
+    t1fig_position = get(gcf,'position');
+    
+    img_data_vmp1_vec = img_data_vmp1(:);
+    img_data_vmp1_vec(img_data_vmp1_vec==0) = NaN;
+    
+    img_data_vmp2_vec = img_data_vmp2(:);
+    img_data_vmp2_vec(img_data_vmp2_vec==0) = NaN;
+    
+    %thediff = (img_data_vmp2_vec-img_data_vmp1_vec ./ img_data_vmp1_vec).*100;
+    thediff = img_data_vmp2_vec-img_data_vmp1_vec;
+    thediff(thediff==0)= NaN;
+    thediff = abs(thediff);
+    
+    % explicit here for sanity
+    change = thediff./img_data_vmp1_vec;
+    change(change==0)= NaN;
+    prc_change = change.*100;
+    
+    % back to 3D data for tight_tile()
+    %thediff_rs = reshape(prc_change,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
+    
+    thediff_rs = reshape(thediff,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
+    
+    % extra varargin for loading an overlay
+    tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs,[0 100]);
+    diff_figt = [ppt_path subnames{ii} '/irtse_diff_fig_tiled.png'];
+    saveas(gcf,diff_figt)
+    
+    
+    % need a mask of the ROIs
+%     
+%     maskdata_R = [mypath v1subs{ii} '/structurals/right_roi_mask_flo.nii'];
+%     maskdata_L = [mypath v1subs{ii} '/structurals/left_roi_mask_flo.nii'];
+%     
+%     maskdata_Rx = load_untouch_nii(maskdata_R);
+%     maskdata_Lx = load_untouch_nii(maskdata_L);
+%     
+%     maskdata_Rxy = double(maskdata_Rx.img);
+%     maskdata_Lxy = double(maskdata_Lx.img);
+%     
+%     maskdata_R_name = 'right_mask';
+%     maskdata_L_name = 'left_mask';
+%     
+%     maskdata_Rv = maskdata_Rxy(:);
+%     maskdata_Lv = maskdata_Lxy(:);
+%     maskdata = maskdata_Rv+maskdata_Lv;
+%     maskdata_bin = logical(maskdata);
+    
+    img_v1_bin = img_data_vmp1_vec.*maskdata_bin;
+    img_v2_bin = img_data_vmp2_vec.*maskdata_bin;
+    %prc_change_bin = prc_change.*maskdata_bin;
+    thediff_bin = thediff.*maskdata_bin;
+    
+    a = img_v1_bin(~isnan(img_v1_bin));
+    a0 = a(a~=0);
+    
+    b = img_v2_bin(~isnan(img_v2_bin));
+    b0 = b(b~=0);
+    
+    %c = prc_change_bin(~isnan(prc_change_bin));
+    c = thediff_bin(~isnan(thediff_bin));
+    c0 = c(c~=0);
+    
+    
+    % histogram of differences
+    figure('Position',[100 100 1200 500])
+    tiledlayout(1,2)
+    nexttile
+    edges = linspace(0, 500, 10);
+    [v1values, ~] = histcounts(a0,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v1values, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    text(100,100,['mode v1 ' num2str(mode(a0))]);
+    hold on
+    [v2values, ~] = histcounts(b0,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v2values, 'EdgeColor', [0, 0, 256]./256,'FaceColor', [0, 0, 256]./256, 'FaceAlpha', 0.4);
+    legend('V1','V2','Location','best');
+    ylabel('Count'); xlabel('Intensity (au)');
+    text(100,120,['mode v2 ' num2str(mode(b0))]);   
+    nexttile
+    edges = linspace(0, 200, 20);
+    %[diffvalues, ~] = histcounts(prc_change_bin(prc_change_bin~=0),edges);
+    [diffvalues, ~] = histcounts(c0,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    ylabel('Count'); xlabel('abs diff');
+    text(100,10,['mode prc diff ' num2str(mode(c0))]);
+    
+    comp_histogramt = [ppt_path subnames{ii} '/irtse_hist_tiled.png'];
+    saveas(gcf,comp_histogramt)
+    t2fig_position = get(gcf,'position');
+    
+    %thediff_range = normalize(thediff,'range');
+    
+    %thediff_range = thediff./max(thediff);
+    %thediff_range_prc = thediff_range.*100;
+    %histogram(nonzeros(thediff_range_prc))
+    
+%     aa = size(img_data_vmp1);
+%     thediff_range_prc_img = reshape(thediff_range_prc,aa);
+%     
+    % [I,J,K] = ind2sub(aa,thediff_range_prc);
+    
+    %V_MPX = V_MP1;
+    %V_MPX.img = thediff_range_prc_img;
+    
+    outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_irtse_gaddiff.nii'];    %info_t1 = make_ana(thediff_range_prc_img);
+    
+    
+    %save_untouch_nii(info_t1,outfile)
+    %V_MPX.fileprefix = outfile;
+    
+    %save_untouch_nii(V_MPX,outfile);
+    %thisguy = make_nii(thediff_range_prc_img);
+    thisguy = make_nii(thediff_rs);
+    thisguy.hdr.hist = V_MP1.hdr.hist;
+    save_nii(thisguy,outfile);
+    
     
 
 %% ppt
 %Create Powerpoint Slides for each subject
-    t1map = Picture(v1_fig);
-    t1map.Width = num2str(1.4*t1fig_position(3)); t1map.Height = num2str(1.4*t1fig_position(4));
-    t1map.X = '0'; t1map.Y = '140';
+    mp_gad_v1 = Picture(v1_fig);
+    mp_gad_v1.Width = num2str(1.4*t1fig_position(3)); mp_gad_v1.Height = num2str(1.4*t1fig_position(4));
+    mp_gad_v1.X = '0'; mp_gad_v1.Y = '140';
     pictureSlide = add(ppt,'Title Only');
     replace(pictureSlide,'Title',[subnames{ii}, ' Visit 1']);
-    add(pictureSlide,t1map);
+    add(pictureSlide,mp_gad_v1);
     
 
-    t1map_nordic = Picture(v2_fig);
-    t1map_nordic.Width = num2str(1.4*t1fig_position(3)); t1map_nordic.Height = num2str(1.4*t1fig_position(4));
-    t1map_nordic.X = '0'; t1map_nordic.Y = '140';
+    mp_gad_v2 = Picture(v2_fig);
+    mp_gad_v2.Width = num2str(1.4*t1fig_position(3)); mp_gad_v2.Height = num2str(1.4*t1fig_position(4));
+    mp_gad_v2.X = '0'; mp_gad_v2.Y = '140';
     pictureSlide2 = add(ppt,'Title Only');
     replace(pictureSlide2,'Title',[subnames{ii}, ' Visit 2']);
-    add(pictureSlide2,t1map_nordic);
+    add(pictureSlide2,mp_gad_v2);
     
 
-    t1map_diff = Picture(diff_fig);
-    t1map_diff.Width = num2str(1.4*t1fig_position(3)); t1map_diff.Height = num2str(1.4*t1fig_position(4));
-    t1map_diff.X = '0'; t1map_diff.Y = '140';
+    mp_gad_diff = Picture(diff_fig);
+    mp_gad_diff.Width = num2str(1.4*t1fig_position(3)); mp_gad_diff.Height = num2str(1.4*t1fig_position(4));
+    mp_gad_diff.X = '0'; mp_gad_diff.Y = '140';
     pictureSlide3 = add(ppt,'Title Only');
     replace(pictureSlide3,'Title',[subnames{ii}, ' percentage difference']);
-    add(pictureSlide3,t1map_diff);
+    add(pictureSlide3,mp_gad_diff);
     
     
     
-    r2map_diff = Picture(comp_histogram);
-    r2map_diff.Width = num2str(t2fig_position(3)); r2map_diff.Height = num2str(t2fig_position(4));
-    r2map_diff.X = '0'; r2map_diff.Y = '140';
+    mp_hist = Picture(comp_histogram);
+    mp_hist.Width = num2str(t2fig_position(3)); mp_hist.Height = num2str(t2fig_position(4));
+    mp_hist.X = '0'; mp_hist.Y = '140';
     pictureSlide4 = add(ppt,'Title Only');
     replace(pictureSlide4,'Title',[subnames{ii}, ' Histograms in CP']);
-    add(pictureSlide4,r2map_diff);
+    add(pictureSlide4,mp_hist);
+    
+    % irtse
+    
+    ir_gad_v1 = Picture(v1_figt);
+    ir_gad_v1.Width = num2str(1.4*t1fig_position(3)); ir_gad_v1.Height = num2str(1.4*t1fig_position(4));
+    ir_gad_v1.X = '0'; ir_gad_v1.Y = '140';
+    pictureSlide5 = add(ppt,'Title Only');
+    replace(pictureSlide5,'Title',[subnames{ii}, ' Visit 1 irtse']);
+    add(pictureSlide5,ir_gad_v1);
+    
+
+    ir_gad_v2 = Picture(v2_figt);
+    ir_gad_v2.Width = num2str(1.4*t1fig_position(3)); ir_gad_v2.Height = num2str(1.4*t1fig_position(4));
+    ir_gad_v2.X = '0'; ir_gad_v2.Y = '140';
+    pictureSlide6 = add(ppt,'Title Only');
+    replace(pictureSlide6,'Title',[subnames{ii}, ' Visit 2 irtse']);
+    add(pictureSlide6,ir_gad_v2);
+    
+
+    ir_gad_diff = Picture(diff_figt);
+    ir_gad_diff.Width = num2str(1.4*t1fig_position(3)); ir_gad_diff.Height = num2str(1.4*t1fig_position(4));
+    ir_gad_diff.X = '0'; ir_gad_diff.Y = '140';
+    pictureSlide7 = add(ppt,'Title Only');
+    replace(pictureSlide7,'Title',[subnames{ii}, ' irtse abs difference']);
+    add(pictureSlide7,ir_gad_diff);
+    
+    
+    
+    ir_hist = Picture(comp_histogramt);
+    ir_hist.Width = num2str(t2fig_position(3)); ir_hist.Height = num2str(t2fig_position(4));
+    ir_hist.X = '0'; ir_hist.Y = '140';
+    pictureSlide8 = add(ppt,'Title Only');
+    replace(pictureSlide8,'Title',[subnames{ii}, ' irtse Histograms in CP']);
+    add(pictureSlide8,ir_hist);
+    
     
 close(ppt);
 
