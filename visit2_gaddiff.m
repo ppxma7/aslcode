@@ -79,7 +79,7 @@ replace(slide1,'Subtitle','Michael Asghar');
 spacing = 2; % for tight_tile()
 
 
-
+%%
 tic
 for ii = 1:length(subs)
     disp([subnames{ii}]);
@@ -124,7 +124,11 @@ for ii = 1:length(subs)
     %% load masks
     % instead of a diff, we can divide by a WM mask to get the enhancement
     % ratio
-    wm_mask = [mypath v1subs{ii} '/structurals/wm/FLAIRBET_seg_1.nii.gz'];
+    %wm_mask = [mypath v1subs{ii} '/structurals/wm/FLAIRBET_seg_1.nii.gz'];
+    % this is a big ROI, from FAST segmentation
+    
+    wm_mask = [mypath v1subs{ii} '/structurals/wm/wm_mask_bin.nii.gz']; % this is a manually drawn small ROI
+    
     wm_mask_x = load_untouch_nii(wm_mask);
     wm_mask_xy = double(wm_mask_x.img);
     wm_mask_name = 'WM_mask';
@@ -145,7 +149,11 @@ for ii = 1:length(subs)
     maskdata_L_name = 'left_mask';
     
     maskdata_Rv = maskdata_Rxy(:);
+    maskdata_RV_bin = logical(maskdata_Rv);
+    
     maskdata_Lv = maskdata_Lxy(:);
+    maskdata_LV_bin = logical(maskdata_Lv);
+    
     maskdata = maskdata_Rv+maskdata_Lv;
     maskdata_bin = logical(maskdata);
     
@@ -170,92 +178,119 @@ for ii = 1:length(subs)
     thediff_rs = reshape(prc_change,size(img_data_vmp1,1),size(img_data_vmp1,2),size(img_data_vmp1,3));
     
     % extra varargin for loading an overlay
+    % overlay the difference map on the mprage
     tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs,[-100 1000]);
     diff_fig = [ppt_path subnames{ii} '/mprage_diff_fig_tiled.png'];
     saveas(gcf,diff_fig)
     
+    outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_mprage_gaddiff.nii'];
+    thisguy = make_nii(thediff_rs);
+    thisguy.hdr.hist = V_MP1.hdr.hist;
+    save_nii(thisguy,outfile);
+    
     
 
+    % here we mask for histograms/ ER
+    % mask for L R CP masks
+    img_v1_bin_R = img_data_vmp1_vec.*maskdata_RV_bin;
+    img_v2_bin_R = img_data_vmp2_vec.*maskdata_RV_bin;
+    prc_change_bin_R = prc_change.*maskdata_RV_bin;
     
-    img_v1_bin = img_data_vmp1_vec.*maskdata_bin;
-    img_v2_bin = img_data_vmp2_vec.*maskdata_bin;
-    prc_change_bin = prc_change.*maskdata_bin;
+    img_v1_bin_L = img_data_vmp1_vec.*maskdata_LV_bin;
+    img_v2_bin_L = img_data_vmp2_vec.*maskdata_LV_bin;
+    prc_change_bin_L = prc_change.*maskdata_LV_bin;
     
+    % just one bilateral WM mask here
     img_v2_bin_wm = img_data_vmp2_vec.*wm_mask_v_bin;
-    
-    a = img_v1_bin(~isnan(img_v1_bin));
-    a0 = a(a~=0);
-    
-    b = img_v2_bin(~isnan(img_v2_bin));
-    b0 = b(b~=0);
-    
-    c = prc_change_bin(~isnan(prc_change_bin));
-    c0 = c(c~=0);
-    
     d = img_v2_bin_wm(~isnan(img_v2_bin_wm));
     d0 = d(d~=0);
     
-    ER(ii) = max(b0)./mean(d0); %brightest part of CP ./ mean of WM
+    % clean nans and 0s
+    a_R = img_v1_bin_R(~isnan(img_v1_bin_R));
+    a0_R = a_R(a_R~=0);
+    b_R = img_v2_bin_R(~isnan(img_v2_bin_R));
+    b0_R = b_R(b_R~=0);
+    c_R = prc_change_bin_R(~isnan(prc_change_bin_R));
+    c0_R = c_R(c_R~=0);
+    
+    a_L = img_v1_bin_L(~isnan(img_v1_bin_L));
+    a0_L = a_L(a_L~=0);
+    b_L = img_v2_bin_L(~isnan(img_v2_bin_L));
+    b0_L = b_L(b_L~=0);
+    c_L = prc_change_bin_L(~isnan(prc_change_bin_L));
+    c0_L = c_L(c_L~=0);
+    
+
+    %brightest part of CP ./ mean of WM
+    ER_R(ii) = max(b0_R)./mean(d0);
+    ER_R_mean(ii) = mean(b0_R)./mean(d0);
+    ER_R_mode(ii) = mode(b0_R)./mean(d0);
+    ER_L(ii) = max(b0_L)./mean(d0);
+    ER_L_mean(ii) = mean(b0_L)./mean(d0);
+    ER_L_mode(ii) = mode(b0_L)./mean(d0);
+    
     
     % histogram of differences
     figure('Position',[100 100 1200 500])
     tiledlayout(1,2)
     nexttile
     edges = linspace(0, 500, 10);
-    [v1values, ~] = histcounts(a0,edges);
+    [v1values, ~] = histcounts(a0_R,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, v1values, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
-    text(100,100,['mode v1 ' num2str(mode(a0))]);
+    text(100,100,['mode v1 ' num2str(mode(a0_R))]);
     hold on
-    [v2values, ~] = histcounts(b0,edges);
+    [v2values, ~] = histcounts(b0_R,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, v2values, 'EdgeColor', [0, 0, 256]./256,'FaceColor', [0, 0, 256]./256, 'FaceAlpha', 0.4);
     legend('V1','V2','Location','best');
     ylabel('Count'); xlabel('Intensity (au)');
-    text(100,150,['mode v2 ' num2str(mode(b0))]);   
+    text(100,110,['mode v2 ' num2str(mode(b0_R))]);   
+    ylim([0 200])
     nexttile
     edges = linspace(-100, 1000, 20);
-    [diffvalues, ~] = histcounts(c0,edges);
+    [diffvalues, ~] = histcounts(c0_R,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
     ylabel('Count'); xlabel('% change');
-    text(100,10,['mean prc diff ' num2str(mean(c0))]);
+    text(0,100,['mean prc diff ' num2str(mean(c0_R))]);
+    ylim([0 200])
+    comp_histogram_R = [ppt_path subnames{ii} '/R_hist_tiled.png'];
+    saveas(gcf,comp_histogram_R)
+    Rhistfig_position = get(gcf,'position');
     
-    comp_histogram = [ppt_path subnames{ii} '/hist_tiled.png'];
-    saveas(gcf,comp_histogram)
-    t2fig_position = get(gcf,'position');
-    
-    %thediff_range = normalize(thediff,'range');
-    
-    %thediff_range = thediff./max(thediff);
-    %thediff_range_prc = thediff_range.*100;
-    %histogram(nonzeros(thediff_range_prc))
-    
-%     aa = size(img_data_vmp1);
-%     thediff_range_prc_img = reshape(thediff_range_prc,aa);
-%     
-    % [I,J,K] = ind2sub(aa,thediff_range_prc);
-    
-    %V_MPX = V_MP1;
-    %V_MPX.img = thediff_range_prc_img;
-    
-    outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_mprage_gaddiff.nii'];    %info_t1 = make_ana(thediff_range_prc_img);
-    
-    
-    %save_untouch_nii(info_t1,outfile)
-    %V_MPX.fileprefix = outfile;
-    
-    %save_untouch_nii(V_MPX,outfile);
-    %thisguy = make_nii(thediff_range_prc_img);
-    thisguy = make_nii(thediff_rs);
-    thisguy.hdr.hist = V_MP1.hdr.hist;
-    save_nii(thisguy,outfile);
+    figure('Position',[100 100 1200 500])
+    tiledlayout(1,2)
+    nexttile
+    edges = linspace(0, 500, 10);
+    [v1values, ~] = histcounts(a0_L,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v1values, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    text(100,100,['mode v1 ' num2str(mode(a0_L))]);
+    hold on
+    [v2values, ~] = histcounts(b0_L,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v2values, 'EdgeColor', [0, 0, 256]./256,'FaceColor', [0, 0, 256]./256, 'FaceAlpha', 0.4);
+    legend('V1','V2','Location','best');
+    ylabel('Count'); xlabel('Intensity (au)');
+    text(100,110,['mode v2 ' num2str(mode(b0_L))]);   
+    ylim([0 200])
+    nexttile
+    edges = linspace(-100, 1000, 20);
+    [diffvalues, ~] = histcounts(c0_L,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    ylabel('Count'); xlabel('% change');
+    text(0,100,['mean prc diff ' num2str(mean(c0_L))]);
+    ylim([0 200])
+    comp_histogram_L = [ppt_path subnames{ii} '/L_hist_tiled.png'];
+    saveas(gcf,comp_histogram_L)
+    Lhistfig_position = get(gcf,'position');
     
     
+
     
-    
-    
-    %keyboard
+
     
     %% ir tse
     
@@ -315,52 +350,49 @@ for ii = 1:length(subs)
     tight_tile(img_data_vmp1,'gray',0,250,1,[50:60],thediff_rs,[0 100]);
     diff_figt = [ppt_path subnames{ii} '/irtse_diff_fig_tiled.png'];
     saveas(gcf,diff_figt)
+    outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_irtse_gaddiff.nii'];    %info_t1 = make_ana(thediff_range_prc_img);
+    thisguy = make_nii(thediff_rs);
+    thisguy.hdr.hist = V_MP1.hdr.hist;
+    save_nii(thisguy,outfile);
     
     
-    % need a mask of the ROIs
-%     
-%     maskdata_R = [mypath v1subs{ii} '/structurals/right_roi_mask_flo.nii'];
-%     maskdata_L = [mypath v1subs{ii} '/structurals/left_roi_mask_flo.nii'];
-%     
-%     maskdata_Rx = load_untouch_nii(maskdata_R);
-%     maskdata_Lx = load_untouch_nii(maskdata_L);
-%     
-%     maskdata_Rxy = double(maskdata_Rx.img);
-%     maskdata_Lxy = double(maskdata_Lx.img);
-%     
-%     maskdata_R_name = 'right_mask';
-%     maskdata_L_name = 'left_mask';
-%     
-%     maskdata_Rv = maskdata_Rxy(:);
-%     maskdata_Lv = maskdata_Lxy(:);
-%     maskdata = maskdata_Rv+maskdata_Lv;
-%     maskdata_bin = logical(maskdata);
     
-    img_v1_bin = img_data_vmp1_vec.*maskdata_bin;
-    img_v2_bin = img_data_vmp2_vec.*maskdata_bin;
-    %prc_change_bin = prc_change.*maskdata_bin;
-    thediff_bin = thediff.*maskdata_bin;
+    img_v1_bin_R = img_data_vmp1_vec.*maskdata_RV_bin;
+    img_v2_bin_R = img_data_vmp2_vec.*maskdata_RV_bin;
+    prc_change_bin_R = prc_change.*maskdata_RV_bin;
     
-    a = img_v1_bin(~isnan(img_v1_bin));
-    a0 = a(a~=0);
+    img_v1_bin_L = img_data_vmp1_vec.*maskdata_LV_bin;
+    img_v2_bin_L = img_data_vmp2_vec.*maskdata_LV_bin;
+    prc_change_bin_L = prc_change.*maskdata_LV_bin;
     
-    b = img_v2_bin(~isnan(img_v2_bin));
-    b0 = b(b~=0);
-    
-    %c = prc_change_bin(~isnan(prc_change_bin));
-    c = thediff_bin(~isnan(thediff_bin));
-    c0 = c(c~=0);
-    
-    
+    % just one bilateral WM mask here
     img_v2_bin_wm = img_data_vmp2_vec.*wm_mask_v_bin;
-
     d = img_v2_bin_wm(~isnan(img_v2_bin_wm));
     d0 = d(d~=0);
     
-    ER_irtse(ii) = max(b0)./mean(d0); %brightest part of CP ./ mean of WM
+    % clean nans and 0s
+    a_R = img_v1_bin_R(~isnan(img_v1_bin_R));
+    a0_R = a_R(a_R~=0);
+    b_R = img_v2_bin_R(~isnan(img_v2_bin_R));
+    b0_R = b_R(b_R~=0);
+    c_R = prc_change_bin_R(~isnan(prc_change_bin_R));
+    c0_R = c_R(c_R~=0);
     
+    a_L = img_v1_bin_L(~isnan(img_v1_bin_L));
+    a0_L = a_L(a_L~=0);
+    b_L = img_v2_bin_L(~isnan(img_v2_bin_L));
+    b0_L = b_L(b_L~=0);
+    c_L = prc_change_bin_L(~isnan(prc_change_bin_L));
+    c0_L = c_L(c_L~=0);
     
-    
+
+    %brightest part of CP ./ mean of WM
+    ER_R_irtse(ii) = max(b0_R)./mean(d0);
+    ER_R_mean_irtse(ii) = mean(b0_R)./mean(d0);
+    ER_R_mode_irtse(ii) = mode(b0_R)./mean(d0);
+    ER_L_irtse(ii) = max(b0_L)./mean(d0);
+    ER_L_mean_irtse(ii) = mean(b0_L)./mean(d0);
+    ER_L_mode_irtse(ii) = mode(b0_L)./mean(d0);
     
     
     % histogram of differences
@@ -368,56 +400,60 @@ for ii = 1:length(subs)
     tiledlayout(1,2)
     nexttile
     edges = linspace(0, 500, 10);
-    [v1values, ~] = histcounts(a0,edges);
+    [v1values, ~] = histcounts(a0_R,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, v1values, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
-    text(100,100,['mode v1 ' num2str(mode(a0))]);
+    text(100,100,['mode v1 ' num2str(mode(a0_R))]);
     hold on
-    [v2values, ~] = histcounts(b0,edges);
+    [v2values, ~] = histcounts(b0_R,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, v2values, 'EdgeColor', [0, 0, 256]./256,'FaceColor', [0, 0, 256]./256, 'FaceAlpha', 0.4);
     legend('V1','V2','Location','best');
     ylabel('Count'); xlabel('Intensity (au)');
-    text(100,120,['mode v2 ' num2str(mode(b0))]);   
+    text(100,110,['mode v2 ' num2str(mode(b0_R))]); 
+    ylim([0 200])
     nexttile
-    edges = linspace(0, 200, 20);
-    %[diffvalues, ~] = histcounts(prc_change_bin(prc_change_bin~=0),edges);
-    [diffvalues, ~] = histcounts(c0,edges);
+    edges = linspace(-100, 1000, 20);
+    [diffvalues, ~] = histcounts(c0_R,edges);
     centers = (edges(1:end-1)+edges(2:end))/2;
     area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
-    ylabel('Count'); xlabel('abs diff');
-    text(100,10,['mean diff ' num2str(mean(c0))]);
+    ylabel('Count'); xlabel('% change');
+    text(0,100,['mean prc diff ' num2str(mean(c0_R))]);
+    ylim([0 200])
+    comp_histogram_R = [ppt_path subnames{ii} '/irtse_R_hist_tiled.png'];
+    saveas(gcf,comp_histogram_R)
+    Rhistfig_position = get(gcf,'position');
     
-    comp_histogramt = [ppt_path subnames{ii} '/irtse_hist_tiled.png'];
-    saveas(gcf,comp_histogramt)
-    t2fig_position = get(gcf,'position');
+    figure('Position',[100 100 1200 500])
+    tiledlayout(1,2)
+    nexttile
+    edges = linspace(0, 500, 10);
+    [v1values, ~] = histcounts(a0_L,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v1values, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    text(100,100,['mode v1 ' num2str(mode(a0_L))]);
+    hold on
+    [v2values, ~] = histcounts(b0_L,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, v2values, 'EdgeColor', [0, 0, 256]./256,'FaceColor', [0, 0, 256]./256, 'FaceAlpha', 0.4);
+    legend('V1','V2','Location','best');
+    ylabel('Count'); xlabel('Intensity (au)');
+    text(100,110,['mode v2 ' num2str(mode(b0_L))]);
+    ylim([0 200])
+    nexttile
+    edges = linspace(-100, 1000, 20);
+    [diffvalues, ~] = histcounts(c0_L,edges);
+    centers = (edges(1:end-1)+edges(2:end))/2;
+    area(centers, diffvalues, 'EdgeColor', [256, 0, 0]./256,'FaceColor', [256, 0, 0]./256, 'FaceAlpha', 0.4);
+    ylabel('Count'); xlabel('% change');
+    text(0,100,['mean prc diff ' num2str(mean(c0_L))]);
+    ylim([0 200])
+    comp_histogram_L = [ppt_path subnames{ii} '/irtse_L_hist_tiled.png'];
+    saveas(gcf,comp_histogram_L)
+    Lhistfig_position = get(gcf,'position');
     
-    %thediff_range = normalize(thediff,'range');
-    
-    %thediff_range = thediff./max(thediff);
-    %thediff_range_prc = thediff_range.*100;
-    %histogram(nonzeros(thediff_range_prc))
-    
-%     aa = size(img_data_vmp1);
-%     thediff_range_prc_img = reshape(thediff_range_prc,aa);
-%     
-    % [I,J,K] = ind2sub(aa,thediff_range_prc);
-    
-    %V_MPX = V_MP1;
-    %V_MPX.img = thediff_range_prc_img;
-    
-    outfile = [mypath subs{ii} '/analysis/' subnames{ii} '_irtse_gaddiff.nii'];    %info_t1 = make_ana(thediff_range_prc_img);
-    
-    
-    %save_untouch_nii(info_t1,outfile)
-    %V_MPX.fileprefix = outfile;
-    
-    %save_untouch_nii(V_MPX,outfile);
-    %thisguy = make_nii(thediff_range_prc_img);
-    thisguy = make_nii(thediff_rs);
-    thisguy.hdr.hist = V_MP1.hdr.hist;
-    save_nii(thisguy,outfile);
-    
+
+
     
 
 %% ppt
@@ -447,47 +483,60 @@ for ii = 1:length(subs)
     
     
     
-    mp_hist = Picture(comp_histogram);
-    mp_hist.Width = num2str(t2fig_position(3)); mp_hist.Height = num2str(t2fig_position(4));
+    mp_hist = Picture(comp_histogram_R);
+    mp_hist.Width = num2str(Rhistfig_position(3)); mp_hist.Height = num2str(Rhistfig_position(4));
     mp_hist.X = '0'; mp_hist.Y = '140';
     pictureSlide4 = add(ppt,'Title Only');
-    replace(pictureSlide4,'Title',[subnames{ii}, ' Histograms in CP']);
+    replace(pictureSlide4,'Title',[subnames{ii}, ' Histograms in R CP']);
     add(pictureSlide4,mp_hist);
+    
+    mp_hist = Picture(comp_histogram_L);
+    mp_hist.Width = num2str(Lhistfig_position(3)); mp_hist.Height = num2str(Lhistfig_position(4));
+    mp_hist.X = '0'; mp_hist.Y = '140';
+    pictureSlide5 = add(ppt,'Title Only');
+    replace(pictureSlide5,'Title',[subnames{ii}, ' Histograms in L CP']);
+    add(pictureSlide5,mp_hist);
     
     % irtse
     
     ir_gad_v1 = Picture(v1_figt);
     ir_gad_v1.Width = num2str(1.4*t1fig_position(3)); ir_gad_v1.Height = num2str(1.4*t1fig_position(4));
     ir_gad_v1.X = '0'; ir_gad_v1.Y = '140';
-    pictureSlide5 = add(ppt,'Title Only');
-    replace(pictureSlide5,'Title',[subnames{ii}, ' Visit 1 irtse']);
-    add(pictureSlide5,ir_gad_v1);
+    pictureSlide6 = add(ppt,'Title Only');
+    replace(pictureSlide6,'Title',[subnames{ii}, ' Visit 1 irtse']);
+    add(pictureSlide6,ir_gad_v1);
     
 
     ir_gad_v2 = Picture(v2_figt);
     ir_gad_v2.Width = num2str(1.4*t1fig_position(3)); ir_gad_v2.Height = num2str(1.4*t1fig_position(4));
     ir_gad_v2.X = '0'; ir_gad_v2.Y = '140';
-    pictureSlide6 = add(ppt,'Title Only');
-    replace(pictureSlide6,'Title',[subnames{ii}, ' Visit 2 irtse']);
-    add(pictureSlide6,ir_gad_v2);
+    pictureSlide7 = add(ppt,'Title Only');
+    replace(pictureSlide7,'Title',[subnames{ii}, ' Visit 2 irtse']);
+    add(pictureSlide7,ir_gad_v2);
     
 
     ir_gad_diff = Picture(diff_figt);
     ir_gad_diff.Width = num2str(1.4*t1fig_position(3)); ir_gad_diff.Height = num2str(1.4*t1fig_position(4));
     ir_gad_diff.X = '0'; ir_gad_diff.Y = '140';
-    pictureSlide7 = add(ppt,'Title Only');
-    replace(pictureSlide7,'Title',[subnames{ii}, ' irtse abs difference']);
-    add(pictureSlide7,ir_gad_diff);
-    
-    
-    
-    ir_hist = Picture(comp_histogramt);
-    ir_hist.Width = num2str(t2fig_position(3)); ir_hist.Height = num2str(t2fig_position(4));
-    ir_hist.X = '0'; ir_hist.Y = '140';
     pictureSlide8 = add(ppt,'Title Only');
-    replace(pictureSlide8,'Title',[subnames{ii}, ' irtse Histograms in CP']);
-    add(pictureSlide8,ir_hist);
+    replace(pictureSlide8,'Title',[subnames{ii}, ' irtse abs difference']);
+    add(pictureSlide8,ir_gad_diff);
     
+    
+    
+    mp_hist = Picture(comp_histogram_R);
+    mp_hist.Width = num2str(Rhistfig_position(3)); mp_hist.Height = num2str(Rhistfig_position(4));
+    mp_hist.X = '0'; mp_hist.Y = '140';
+    pictureSlide9 = add(ppt,'Title Only');
+    replace(pictureSlide9,'Title',[subnames{ii}, ' irtse Histograms in R CP']);
+    add(pictureSlide9,mp_hist);
+    
+    mp_hist = Picture(comp_histogram_L);
+    mp_hist.Width = num2str(Lhistfig_position(3)); mp_hist.Height = num2str(Lhistfig_position(4));
+    mp_hist.X = '0'; mp_hist.Y = '140';
+    pictureSlide10 = add(ppt,'Title Only');
+    replace(pictureSlide10,'Title',[subnames{ii}, ' irtse Histograms in L CP']);
+    add(pictureSlide10,mp_hist);
 
 
 end
@@ -497,16 +546,28 @@ close(ppt);
 
 
 % table of ERs
-
-
-
 block = [subnames(:); 'Mean'; 'SE'];
 
-T = table(ER(:),ER_irtse(:),'RowName',subnames(:),'VariableNames',["ER MPRAGE","ER IRTSE"]);
-M = varfun(@mean, T, 'InputVariables',@isnumeric);
-SE = varfun(@(x) std(x,[],1)./sqrt(length(subnames)), T, 'InputVariables',@isnumeric);
-Tx = array2table([table2array(T); table2array(M); table2array(SE)],'RowName',block,'VariableNames',["ER MPRAGE","ER IRTSE"]);
-writetable(Tx,'ER_table2.xlsx','WriteVariableNames',true,'WriteRowNames',true)
+
+    
+
+TR = table(ER_R(:),ER_R_mean(:),ER_R_mode(:),ER_R_irtse(:),ER_R_mean_irtse(:),ER_R_mode_irtse(:),...
+    'RowName',subnames(:),...
+    'VariableNames',["ER Max MPRAGE","ER Mean MPRAGE","ER Mode","ER Max IRTSE","ER Mean IRTSE","ER Mode IRTSE"]);
+M = varfun(@mean, TR, 'InputVariables',@isnumeric);
+SE = varfun(@(x) std(x,[],1)./sqrt(length(subnames)), TR, 'InputVariables',@isnumeric);
+TRx = array2table([table2array(TR); table2array(M); table2array(SE)],'RowName',block,...
+    'VariableNames',["ER Max MPRAGE","ER Mean MPRAGE","ER Mode","ER Max IRTSE","ER Mean IRTSE","ER Mode IRTSE"]);
+writetable(TRx,'ER_table_smallROI_more_R.xlsx','WriteVariableNames',true,'WriteRowNames',true)
+
+TL = table(ER_L(:),ER_L_mean(:),ER_L_mode(:),ER_L_irtse(:),ER_L_mean_irtse(:),ER_L_mode_irtse(:),...
+    'RowName',subnames(:),...
+    'VariableNames',["ER Max MPRAGE","ER Mean MPRAGE","ER Mode","ER Max IRTSE","ER Mean IRTSE","ER Mode IRTSE"]);
+M = varfun(@mean, TL, 'InputVariables',@isnumeric);
+SE = varfun(@(x) std(x,[],1)./sqrt(length(subnames)), TL, 'InputVariables',@isnumeric);
+TLx = array2table([table2array(TL); table2array(M); table2array(SE)],'RowName',block,...
+    'VariableNames',["ER Max MPRAGE","ER Mean MPRAGE","ER Mode","ER Max IRTSE","ER Mean IRTSE","ER Mode IRTSE"]);
+writetable(TLx,'ER_table_smallROI_more_L.xlsx','WriteVariableNames',true,'WriteRowNames',true)
 
 
 disp('done')
