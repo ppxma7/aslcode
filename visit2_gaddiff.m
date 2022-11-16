@@ -229,6 +229,10 @@ for ii = 1:length(subs)
     ER_L_mean(ii) = mean(b0_L)./mean(d0);
     ER_L_mode(ii) = mode(b0_L)./mean(d0);
     
+    ER_LR_mn(ii) = mean([ER_R, ER_L]); % mean of the max's for L and R
+    ER_LR_se(ii) = std([ER_R; ER_L],0,1) ./ sqrt(2); % std error of above
+    
+    
     
     % histogram of differences
     figure('Position',[100 100 1200 500])
@@ -394,6 +398,9 @@ for ii = 1:length(subs)
     ER_L_mean_irtse(ii) = mean(b0_L)./mean(d0);
     ER_L_mode_irtse(ii) = mode(b0_L)./mean(d0);
     
+    ER_LR_mn_irtse(ii) = mean([ER_R_irtse, ER_L_irtse]); % mean of the max's for L and R
+    ER_LR_se_irtse(ii) = std([ER_R_irtse; ER_L_irtse],0,1) ./ sqrt(2); % std error of above
+    
     
     % histogram of differences
     figure('Position',[100 100 1200 500])
@@ -549,7 +556,6 @@ close(ppt);
 block = [subnames(:); 'Mean'; 'SE'];
 
 
-    
 
 TR = table(ER_R(:),ER_R_mean(:),ER_R_mode(:),ER_R_irtse(:),ER_R_mean_irtse(:),ER_R_mode_irtse(:),...
     'RowName',subnames(:),...
@@ -568,6 +574,11 @@ SE = varfun(@(x) std(x,[],1)./sqrt(length(subnames)), TL, 'InputVariables',@isnu
 TLx = array2table([table2array(TL); table2array(M); table2array(SE)],'RowName',block,...
     'VariableNames',["ER Max MPRAGE","ER Mean MPRAGE","ER Mode","ER Max IRTSE","ER Mean IRTSE","ER Mode IRTSE"]);
 writetable(TLx,'ER_table_smallROI_more_L.xlsx','WriteVariableNames',true,'WriteRowNames',true)
+
+Tboth = table(ER_LR_mn(:), ER_LR_se(:), ER_LR_mn_irtse(:), ER_LR_se_irtse(:),...
+    'RowName',subnames(:),...
+    'VariableNames',["Mean of ER Max (MPRAGE)","SE of ER Max (MPRAGE)", "Mean of ER Max (IRTSE)","SE of ER Max (IRTSE)"]);
+writetable(Tboth,'ER_both_LR.xlsx','WriteVariableNames',true,'WriteRowNames',true);
 
 
 disp('done')
