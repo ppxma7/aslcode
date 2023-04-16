@@ -10,7 +10,7 @@ mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/',...
     '220408_GBPERM_08_v1/','220518_GBPERM_09_v1/',...
     '220530_GBPERM_10_v1/'};
 
-mysubs = {'220530_GBPERM_10_v1/'};
+%mysubs = {'220530_GBPERM_10_v1/'};
 
 
 % mymaskR = 'FLAIRBET_copy_R_cp_thresh.nii.gz';
@@ -385,7 +385,16 @@ for ii = 1:length(mysubs)
     
     print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/fit.pdf')
     
-    
-    
+    ygroup(:,1,ii) = y;
+    ygroup(:,2,ii) = y2;
+    ygroup(:,3,ii) = y3;
+    ygroup(:,4,ii) = y4;
+
+    fgroup(:,1,ii) = F3(x3,t);
+    fgroup(:,2,ii) = F3(x3L,t);
+    fgroup(:,3,ii) = F3(x3csfl,t);
+    fgroup(:,4,ii) = F3(x3csfr,t);
+
+
 end
 
