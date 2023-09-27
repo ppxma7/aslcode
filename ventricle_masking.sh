@@ -1,16 +1,16 @@
 #! /bin/bash
 
 mypath="/Volumes/nemosine/CATALYST_BCSFB/"
-#mydata=("220407_GBPERM_07_v1" \
-#	"220408_GBPERM_08_v1")
+mydata=("220407_GBPERM_07_v1/\
+	220408_GBPERM_08_v1/")
 
-mydata=("220126_GBPERM_01_v1/\
-	220208_GBPERM_02_v1/\
-	220216_GBPERM_03_v1/\
-	220222_GBPERM_04_v1/\
-	220311_GBPERM_06_v1/\
-	220518_GBPERM_09_v1/\
-	220530_GBPERM_10_v1/")
+# mydata=("220126_GBPERM_01_v1/\
+# 	220208_GBPERM_02_v1/\
+# 	220216_GBPERM_03_v1/\
+# 	220222_GBPERM_04_v1/\
+# 	220311_GBPERM_06_v1/\
+# 	220518_GBPERM_09_v1/\
+# 	220530_GBPERM_10_v1/")
 
 
 for index in $mydata
