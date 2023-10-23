@@ -19,26 +19,31 @@ do
 
 	cd ${mypath}${index}/masking/
 	echo ${mypath}${index}
-
-	ventricle_mask_file="rnative_structures.nii.gz"
+	ventricle_mask_file="native_structures.nii"
 	ventricle_mask=$(echo "${ventricle_mask_file}" | cut -f 1 -d '.')
-	#echo $ventricle_mask
-
 	fslmaths $ventricle_mask -uthr 2 ${ventricle_mask}_justvens
 	fslmaths ${ventricle_mask}_justvens -div ${ventricle_mask}_justvens ${ventricle_mask}_justvens_bin
+
+
+	#ventricle_mask_file="rnative_structures.nii.gz"
+	#ventricle_mask=$(echo "${ventricle_mask_file}" | cut -f 1 -d '.')
+	#echo $ventricle_mask
+
+	#fslmaths $ventricle_mask -uthr 2 ${ventricle_mask}_justvens
+	#fslmaths ${ventricle_mask}_justvens -div ${ventricle_mask}_justvens ${ventricle_mask}_justvens_bin
 	
 	
 	# here bin the CP masks
 
 	
-	csfmask_file="csfmask.nii"
-	csf_mask=$(echo "${csfmask_file}" | cut -f 1 -d '.')
-	#echo $csf_mask
+	# csfmask_file="csfmask.nii"
+	# csf_mask=$(echo "${csfmask_file}" | cut -f 1 -d '.')
+	# #echo $csf_mask
 
-	fslmaths $ventricle_mask -div $ventricle_mask ${ventricle_mask}_bin
-	#echo ${ventricle_mask}_bin
-	fslmaths ${ventricle_mask}_bin -dilM ${ventricle_mask}_bin_dil
-	fslmaths $csf_mask -sub ${ventricle_mask}_bin_dil ${csf_mask}_presub
-	fslmaths ${csf_mask}_presub -thr 0.1 ${csf_mask}_noventricles
+	# fslmaths $ventricle_mask -div $ventricle_mask ${ventricle_mask}_bin
+	# #echo ${ventricle_mask}_bin
+	# fslmaths ${ventricle_mask}_bin -dilM ${ventricle_mask}_bin_dil
+	# fslmaths $csf_mask -sub ${ventricle_mask}_bin_dil ${csf_mask}_presub
+	# fslmaths ${csf_mask}_presub -thr 0.1 ${csf_mask}_noventricles
 done
 
