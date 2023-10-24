@@ -1,7 +1,16 @@
 #! /bin/bash
 
 mypath="/Volumes/nemosine/CATALYST_BCSFB/"
-mydata=("220202_GBPERM_01_v2/")
+mydata=("220202_GBPERM_01_v2/ 
+	220509_GBPERM_08_v2/
+	220531_GBPERM_09_v2/
+	220531_GBPERM_10_v2/
+	220414_GBPERM_07_v2/
+	220408_GBPERM_08_v1/
+	220223_GBPERM_04_v2/
+	220308_GBPERM_06_v2/
+	220323_GBPERM_03_v2/
+	220209_GBPERM_02_v2/")
 
 # mydata=("220126_GBPERM_01_v1/\
 # 	220208_GBPERM_02_v1/\
@@ -17,12 +26,23 @@ do
 
 	#echo $index
 
+	# cd ${mypath}${index}/masking/
+	# echo ${mypath}${index}
+	# ventricle_mask_file="native_structures.nii"
+	# ventricle_mask=$(echo "${ventricle_mask_file}" | cut -f 1 -d '.')
+	# fslmaths $ventricle_mask -uthr 2 ${ventricle_mask}_justvens
+	# fslmaths ${ventricle_mask}_justvens -div ${ventricle_mask}_justvens ${ventricle_mask}_justvens_bin
+	# fslchfiletype NIFTI ${ventricle_mask}_justvens_bin ${ventricle_mask}_justvens_bin
+
 	cd ${mypath}${index}/masking/
 	echo ${mypath}${index}
-	ventricle_mask_file="native_structures.nii"
-	ventricle_mask=$(echo "${ventricle_mask_file}" | cut -f 1 -d '.')
-	fslmaths $ventricle_mask -uthr 2 ${ventricle_mask}_justvens
-	fslmaths ${ventricle_mask}_justvens -div ${ventricle_mask}_justvens ${ventricle_mask}_justvens_bin
+	# ventricle_mask_file="rnative_structures_justvens_bin.nii"
+	# ventricle_mask=$(echo "${ventricle_mask_file}" | cut -f 1 -d '.')
+
+	#fslmaths $ventricle_mask -uthr 1.1 ${ventricle_mask}_uthr
+	#fslmaths $ventricle_mask -thr 0.9 ${ventricle_mask}_uthr_thr
+	#fslmaths ${ventricle_mask}_uthr_thr -div ${ventricle_mask}_uthr_thr ${ventricle_mask}_uthr_thr_div
+	#fslchfiletype NIFTI ${ventricle_mask}_uthr_thr_div ${ventricle_mask}_uthr_thr_div
 
 
 	#ventricle_mask_file="rnative_structures.nii.gz"
