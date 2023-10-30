@@ -15,11 +15,59 @@ for ii = 1:length(mylist)
 
 end
 
-%ct_0p3_s1
-thisplot(:,1) = thisCluster{1}.ymean_102;
-thisplot(:,2) = thisCluster{1}.ymean_186;
-thisplot_a(:,1) = mean(thisplot,2);
+%%
+rates = {'0p3','3','30',...
+    '0p3','3','30',...
+    '0p3','30',...
+    '0p3',...
+    '3'};
 
+region = {'s1','s1','s1',...
+    's2','s2','s2',...
+    'ofc','ofc',...
+    'insula',...
+    'ACC'};
+
+tstat_stack = [8.79 9.92 11.33,...
+    11.63 10.02 13.80,...
+    5.08 3.88,...
+    4.69,...
+    5.03];
+
+ke = [186 286 262,...
+    283 136 346,...
+    30 19,...
+    67,...
+    88];
+
+figure('Position',[100 100 1024 768])
+clear g
+g = gramm('x',rates,'y',tstat_stack,'color',region,'size',ke);
+g.geom_jitter('dodge',1)
+g.set_title('ct touch')
+g.set_text_options('Font','Helvetica', 'base_size', 16)
+g.set_point_options('use_input',true,'base_size',12,'input_fun',@(s)s./4)
+g.set_names('x','rate (cm/s)','y', 't stat')
+%g.set_layout_options('legend',false)
+g.draw()
+filename = 'cttouch_rates_test';
+g.export('file_name',filename, ...
+    'export_path',...
+    '/Users/ppzma/The University of Nottingham/Pain Relief Grant - General/PFP_results/',...
+    'file_type','pdf')
+
+
+
+
+
+%%
+
+
+%ct_0p3_s1
+%thisplot(:,1) = thisCluster{1}.ymean_102;
+%thisplot(:,2) = thisCluster{1}.ymean_186;
+%thisplot_a(:,1) = mean(thisplot,2);
+thisplot_a(:,1) = thisCluster{1}.ymean_186;
 %ct_3_s1
 thisplot_a(:,2) = thisCluster{5}.ymean_286;
 
@@ -27,10 +75,11 @@ thisplot_a(:,2) = thisCluster{5}.ymean_286;
 thisplot_a(:,3) = thisCluster{8}.ymean_262;
 
 %ct_0p3_s2
-thisplot(:,1) = thisCluster{2}.ymean_283;
-thisplot(:,2) = thisCluster{2}.ymean_44;
-thisplot(:,3) = thisCluster{2}.ymean_63;
-thisplot_a(:,4) = mean(thisplot,2);
+% thisplot(:,1) = thisCluster{2}.ymean_283;
+% thisplot(:,2) = thisCluster{2}.ymean_44;
+% thisplot(:,3) = thisCluster{2}.ymean_63;
+%thisplot_a(:,4) = mean(thisplot,2);
+thisplot_a(:,4) = thisCluster{2}.ymean_283;
 
 %ct_3_s2.mat
 thisplot_a(:,5) = thisCluster{6}.ymean_136;
