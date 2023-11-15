@@ -209,7 +209,7 @@ for ii = 1:length(mysubs)
     y3 = pixcsfl(:,ii);
     y4 = pixcsfr(:,ii);
     
-    print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/norm_range.pdf')
+    %print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/norm_range.pdf')
     
     
     %% histogram
@@ -383,7 +383,7 @@ for ii = 1:length(mysubs)
     legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSFL'},{'Data CSFR'},{'FitR'},{'FitL'}, {'FitCSFL'}, {'FitCSFR'}],'Location','northeast','NumColumns',2)
     title(sprintf('Sub %s',mysubs{ii}))
     
-    print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/fit.pdf')
+    %print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/fit.pdf')
     
     ygroup(:,1,ii) = y;
     ygroup(:,2,ii) = y2;
