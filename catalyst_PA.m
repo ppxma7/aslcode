@@ -1,16 +1,21 @@
 % plot signal vs TI in the choroid plexus
 
-
+clear all
+close all
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_19_Jul_2021/';
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/020921_catalyst_hi_res_13676/';
-mypath = '/Volumes/nemosine/CATALYST_BCSFB/';
+mypath = '/Volumes/ares/CATALYST/';
 mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/',...
     '220216_GBPERM_03_v1/', '220222_GBPERM_04_v1/',...
     '220311_GBPERM_06_v1/','220407_GBPERM_07_v1/',...
     '220408_GBPERM_08_v1/','220518_GBPERM_09_v1/',...
     '220530_GBPERM_10_v1/'};
 
-%mysubs = {'220530_GBPERM_10_v1/'};
+subOrder = {'sub-01','sub-02','sub-03','sub-04','sub-06',...
+    'sub-07','sub-08','sub-09','sub-10'};
+
+userName = char(java.lang.System.getProperty('user.name'));
+savedir = ['/Users/' userName '/The University of Nottingham/Michael_Sue - Catalyst/patient_data/'];
 
 
 % mymaskR = 'FLAIRBET_copy_R_cp_thresh.nii.gz';
@@ -359,18 +364,24 @@ for ii = 1:length(mysubs)
     % [x3b,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3b,x03,t,y,[],[],opts);
     % [x3c,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3c,x03,t,y,[],[],opts);
     % [x3d,resnorm3,~,exitflag3,output3] = lsqcurvefit(F3d,x03,t,y,[],[],opts);
-    
-    figure
-    scatter(t,y,'ro')
+    %%
+
+    map1 = [0 0.4470 0.7410];
+    map2 = [0.8500 0.3250 0.0980];
+    map3 = [0.9290 0.6940 0.1250];
+    map4 = [0.4940 0.1840 0.5560];
+
+    figure('Position',[100 100 1000 600])
+    scatter(t,y,'MarkerEdgeColor',map1,'MarkerFaceColor',map1)
     hold on
-    scatter(t,y2,'bo')
-    scatter(t,y3,'mo')
-    scatter(t,y4,'co')
+    scatter(t,y2,'MarkerEdgeColor',map2,'MarkerFaceColor',map2)
+    scatter(t,y3,'MarkerEdgeColor',map3,'MarkerFaceColor',map3)
+    scatter(t,y4,'MarkerEdgeColor',map4,'MarkerFaceColor',map4)
     
-    plot(t,F3(x3,t),'-r','Linewidth',2)
-    plot(t,F3(x3L,t),'-b','Linewidth',2)
-    plot(t,F3(x3csfl,t),'-m','Linewidth',1)
-    plot(t,F3(x3csfr,t),'-c','Linewidth',1)
+    plot(t,F3(x3,t),'Color',map1,'Linewidth',2)
+    plot(t,F3(x3L,t),'Color',map2,'Linewidth',2)
+    plot(t,F3(x3csfl,t),'Color',map3,'Linewidth',1)
+    plot(t,F3(x3csfr,t),'Color',map4,'Linewidth',1)
     
     
     % plot(t,F3b(x3b,t),'-k','Linewidth',2)
@@ -380,10 +391,10 @@ for ii = 1:length(mysubs)
     xlabel('TI (ms)')
     ylabel('M')
     %legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSFL'},{'Data CSFR'},{'FitR'},{'FitL'}, {'FitCSFL'}, {'FitCSFR'}])
-    legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSFL'},{'Data CSFR'},{'FitR'},{'FitL'}, {'FitCSFL'}, {'FitCSFR'}],'Location','northeast','NumColumns',2)
-    title(sprintf('Sub %s',mysubs{ii}))
+    legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSFL'},{'Data CSFR'},{'FitR'},{'FitL'}, {'FitCSFL'}, {'FitCSFR'}],'Location','bestoutside','NumColumns',1)
+    title(sprintf('GBPERM-%s',subOrder{ii}))
     
-    %print('-dpdf', '/Users/ppzma/The University of Nottingham/Michael_Sue - Catalyst/patient_data/fit.pdf')
+    print('-dpdf', [savedir 'fit-GBPERM-' subOrder{ii}])
     
     ygroup(:,1,ii) = y;
     ygroup(:,2,ii) = y2;
