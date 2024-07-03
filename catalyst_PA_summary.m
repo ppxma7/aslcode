@@ -1,5 +1,5 @@
-cd('/Volumes/nemosine/CATALYST_BCSFB/');
-load('catalyst_v1_fits.mat')
+cd('/Volumes/ares/CATALYST/');
+load('catfitsv1.mat')
 
 % ygroup are raw
 % each row is a IT
@@ -11,6 +11,9 @@ load('catalyst_v1_fits.mat')
 % each 3rd dim is a subject
 
 % same for fgroup but they are fits.
+%%
+userName = char(java.lang.System.getProperty('user.name'));
+savedir = ['/Users/' userName '/The University of Nottingham/Michael_Sue - Catalyst/patient_data/'];
 
 % get mean and std across groups
 x = [1000 2000 3000 4000]';
@@ -21,7 +24,9 @@ stdy = std(ygroup,0,3);
 meanf = mean(fgroup,3);
 stdf = std(fgroup,0,3);
 
-figure
+names = {'CP Right','CP Left', 'CSF Left','CSF Right'};
+
+figure('Position',[100 100 800 600])
 tiledlayout(2,2)
 for iCol = 1:4
     nexttile
@@ -32,10 +37,16 @@ for iCol = 1:4
     shadedErrorBar(x,meanf(:,iCol),stdf(:,iCol),'lineprops','-ro')
     ylim([0.2 0.7])
 
-    
+    title(names{iCol})
+    legend([{'Fit'},{'Y'}],...
+        'Location','bestoutside','NumColumns',1)
+
 
 end
 
+filename2 = fullfile(savedir, 'fit-GBPERM-summary.pdf');
+set(gcf, 'PaperOrientation', 'landscape');
+print(gcf, filename2, '-dpdf', '-r300', '-bestfit');
 
 
 
