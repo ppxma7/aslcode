@@ -2,6 +2,8 @@
 
 clear all
 close all
+clc
+
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_19_Jul_2021/';
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/020921_catalyst_hi_res_13676/';
 mypath = '/Volumes/ares/CATALYST/';
@@ -192,8 +194,8 @@ for ii = 1:length(mysubs)
     pixcsfl(:,ii) = [m1000csfl;m2000csfl;m3000csfl;m4000csfl];
     pixcsfr(:,ii) = [m1000csfr;m2000csfr;m3000csfr;m4000csfr];
     TIs(:,ii) = [1000;2000;3000;4000];
-    
-    figure
+    %%
+    figure('Position',[100 100 1000 600])
     plot(TIs,pixR(:,ii),'r','linewidth',2)
     xlabel('TI (ms)')
     ylabel('M (au)')
@@ -202,12 +204,22 @@ for ii = 1:length(mysubs)
     plot(TIs,pixcsfl(:,ii),'--b','linewidth',2)
     plot(TIs,pixcsfr(:,ii),'--r','linewidth',2)
     
-    legend([{'CP Right'},{'CP Left'},{'CSF Left'},{'CSF Right'}],'Location','southwest','NumColumns',2)
+    legend([{'CP Right'},{'CP Left'},{'CSF Left'},{'CSF Right'}],'Location','bestoutside','NumColumns',1)
     
-    title(sprintf('Sub %s',mysubs{ii}))
-    
+    title(sprintf('GBPERM-%s',subOrder{ii}))
+    %print('-dpdf', [savedir 'nofit-GBPERM-' subOrder{ii}])
+
+    % filename = fullfile(savedir, ['nofit-GBPERM-' subOrder{ii}]);
+    % print(filename, '-dpdf', '-r300', '-bestfit', 'PaperOrientation', 'landscape');
+
+    filename = fullfile(savedir, ['nofit-GBPERM-' subOrder{ii} '.pdf']);
+    set(gcf, 'PaperOrientation', 'landscape');
+    print(gcf, filename, '-dpdf', '-r300', '-bestfit');
+
+    %print([savedir 'nofit-GBPERM-' subOrder{ii}], '-dpdf', '-r300','-bestfit','PaperOrientation','landscape');
+
     %ylim([-100 200])
-    
+
     t = TIs(:,ii);
     y = pixR(:,ii);
     y2 = pixL(:,ii);
@@ -394,7 +406,13 @@ for ii = 1:length(mysubs)
     legend([{'Data RIGHT CP'},{'Data LEFT CP'},{'Data CSFL'},{'Data CSFR'},{'FitR'},{'FitL'}, {'FitCSFL'}, {'FitCSFR'}],'Location','bestoutside','NumColumns',1)
     title(sprintf('GBPERM-%s',subOrder{ii}))
     
-    print('-dpdf', [savedir 'fit-GBPERM-' subOrder{ii}])
+    %print('-dpdf', [savedir 'fit-GBPERM-' subOrder{ii}])
+
+    filename2 = fullfile(savedir, ['fit-GBPERM-' subOrder{ii} '.pdf']);
+    set(gcf, 'PaperOrientation', 'landscape');
+    print(gcf, filename2, '-dpdf', '-r300', '-bestfit');
+
+
     
     ygroup(:,1,ii) = y;
     ygroup(:,2,ii) = y2;
