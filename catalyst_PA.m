@@ -6,7 +6,9 @@ clc
 
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/BCSFB_19_Jul_2021/';
 %mypath ='/Volumes/nemosine/CATALYST_BCSFB/020921_catalyst_hi_res_13676/';
-mypath = '/Volumes/ares/CATALYST/';
+userName = char(java.lang.System.getProperty('user.name'));
+
+mypath = ['/Users/' userName '/data/CATALYST/'];
 mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/',...
     '220216_GBPERM_03_v1/', '220222_GBPERM_04_v1/',...
     '220311_GBPERM_06_v1/','220407_GBPERM_07_v1/',...
@@ -16,7 +18,6 @@ mysubs = {'220126_GBPERM_01_v1/','220208_GBPERM_02_v1/',...
 subOrder = {'sub-01','sub-02','sub-03','sub-04','sub-06',...
     'sub-07','sub-08','sub-09','sub-10'};
 
-userName = char(java.lang.System.getProperty('user.name'));
 savedir = ['/Users/' userName '/The University of Nottingham/Michael_Sue - Catalyst/patient_data/'];
 
 
@@ -29,7 +30,7 @@ mymaskL = 'rleft_roi_mask_flo_bin_mask.nii.gz';
 mycsfR = 'rrightcsf_roi_mask_flo_bin_mask.nii.gz';
 mycsfL = 'rleftcsf_roi_mask_flo_bin_mask.nii.gz';
 
-for ii = 1:length(mysubs)
+for ii = 1 %:length(mysubs)
     
     mmaskR = MRIread([mypath mysubs{ii} 'structurals/' mymaskR]);
     mmaskL = MRIread([mypath mysubs{ii} 'structurals/' mymaskL]);
