@@ -7,43 +7,46 @@ thispath = '/Users/spmic/data/CATALYST/DL_structs_gbperm_results/';
 userName = char(java.lang.System.getProperty('user.name'));
 savedir = ['/Users/' userName '/Library/CloudStorage/OneDrive-SharedLibraries-TheUniversityofNottingham/Michael_Sue - Catalyst/DL_vols/'];
 
-%% read everything in
+% read everything in
 
 chp_vols_file = readtable(fullfile(thispath, 'report_mprage_chp_volumes.csv'));
 pvs_vols_file = readtable(fullfile(thispath, 'report_pvs_volumes.csv'));
-
+%%
 % organise
-subjects = chp_vols_file.scan_id;
-total_vol = chp_vols_file.total_volume_mm3;
-right_vol = chp_vols_file.volume_right_mm3;
-left_vol = chp_vols_file.volume_left_mm3;
+%subjects = chp_vols_file.scan_id;
+
+% actually take the TIV corrected data
+total_vol = chp_vols_file.total_volume_prc_corrected;
+right_vol = chp_vols_file.right_volume_prc_corrected;
+left_vol = chp_vols_file.left_volume_prc_corrected;
 % sort the above cause the order is whack
 
-[subjects_sorted,I] = sort(subjects);
-total_vol_sorted = total_vol(I);
-right_vol_sorted = right_vol(I);
-left_vol_sorted = left_vol(I);
+% [subjects_sorted,I] = sort(subjects);
+% total_vol_sorted = total_vol(I);
+% right_vol_sorted = right_vol(I);
+% left_vol_sorted = left_vol(I);
 
 % now we can just use this subject var cause it's already sorted
-subjects_pvs = pvs_vols_file.scan_id;
-total_vol_pvs = pvs_vols_file.total_volume_mm3;
+subjects = pvs_vols_file.scan_id;
+total_vol_pvs = pvs_vols_file.total_volume_prc_corrected;
 
 % stack
 
-Y = [total_vol_sorted; right_vol_sorted; left_vol_sorted];
-X = cat(1,subjects_pvs, subjects_pvs, subjects_pvs);
-colorGrp = [repmat({'total vol'},length(total_vol_sorted),1),...
-    repmat({'right vol'},length(total_vol_sorted),1),...
-    repmat({'left vol'},length(total_vol_sorted),1)];
+Y = [total_vol; right_vol; left_vol];
+X = cat(1,subjects, subjects, subjects);
+colorGrp = [repmat({'total vol'},length(total_vol),1),...
+    repmat({'right vol'},length(total_vol),1),...
+    repmat({'left vol'},length(total_vol),1)];
 
 Y_pvs = total_vol_pvs;
-X_pvs = subjects_pvs;
-colorGrp_pvs = repmat({'total vol'},length(total_vol_sorted),1);
+X_pvs = subjects;
+colorGrp_pvs = repmat({'total vol'},length(total_vol),1);
 
 
 
 %% for now, let's just plot
-maxLim = 7000;
+%maxLim = 7000;
+maxLim = 0.5;
 
 thismap = [215,48,39;...
     253,184,99;...
@@ -87,7 +90,7 @@ g(1,2).update('y',Y_pvs)
 g(1,2).geom_point("dodge",0); 
 g.draw()
 
-filename = 'plot_vols_DL';
+filename = 'plot_vols_DL_tiv_corrected';
 g.export('file_name',filename, ...
     'export_path',...
     savedir,...
