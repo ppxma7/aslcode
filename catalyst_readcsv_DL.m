@@ -26,6 +26,10 @@ left_vol = chp_vols_file.left_volume_prc_corrected;
 total_vol_raw = chp_vols_file.total_volume_mm3;
 right_vol_raw = chp_vols_file.volume_right_mm3;
 left_vol_raw = chp_vols_file.volume_left_mm3;
+
+total_vol_raw_mean = mean(total_vol_raw,1);
+total_vol_prc_mean = mean(total_vol,1);
+
 % sort the above cause the order is whack
 
 % [subjects_sorted,I] = sort(subjects);
@@ -104,6 +108,9 @@ g(1,1).geom_bar("dodge",0.4,"width",0.5)
 g(1,2) = gramm('x',X_pvs,'y',Y_pvs,'color',colorGrp_pvs);
 g(1,2).geom_bar("dodge",0.4,"width",0.5)
 
+g(1,1).geom_abline('intercept', total_vol_prc_mean, 'slope', 0, 'style', '--k'); % Dashed black line
+
+
 g.set_text_options('font', thisFont, 'base_size', myfontsize)
 g(1,1).set_names('x','Subject', 'y', 'CHP % fraction of intracranial space')
 g(1,2).set_names('x','Subject', 'y', 'PVS % fraction of intracranial space')
@@ -117,6 +124,7 @@ g(1,2).set_color_options('map',thismap2)
 
 %g.set_order_options('x',0,'color',0)
 g.draw()
+
 
 % g(1,1).update('y',Y)
 % g(1,1).geom_point("dodge",0); 
@@ -146,6 +154,9 @@ g(1,1) = gramm('x',X,'y',Y_raw,'color',colorGrp(:));
 g(1,1).geom_bar("dodge",0.4,"width",0.5)
 g(1,2) = gramm('x',X_pvs,'y',Y_pvs_raw,'color',colorGrp_pvs);
 g(1,2).geom_bar("dodge",0.4,"width",0.5)
+
+g(1,1).geom_abline('intercept', total_vol_raw_mean, 'slope', 0, 'style', '--k'); % Dashed black line
+
 
 g.set_text_options('font', thisFont, 'base_size', myfontsize)
 g(1,1).set_names('x','Subject', 'y', 'CHP volume mm^3')
